@@ -1,89 +1,64 @@
 'use strict'
 
 const tape = require('tape')
-const estilo = require('../src/index').estilo
+const mix = require('../src').mix
 const _ = require('lodash')
+const repr = JSON.stringify
 
-tape('falsy values produce empty style', t => {
-    let style
-    for (let value of [null, undefined, false]) {
-        style = estilo(value)
+const _tape = () => null // just a dummy func to deactivate tests
 
-        t.ok(_.isObject(style) && _.isEmpty(style), value + ' produced empty result')
-    }
-
+tape('Basing mixing works', t => {
+    const res = mix({a: 1, b: 1, c: 1}, {b: 2}, {c: 3})
+    t.deepEqual(res, {a: 1, b: 2, c: 3})
     t.end()
 })
 
-tape('plain style is returned as is', t => {
-    const style = {
-        'some selector': {
-            someProp: 'some value',
+tape('Falsy values are ignored while mixing', t => {
+    const res = mix({a: 2}, false, {b: 3}, null, undefined)
+    const expected = {a: 2, b: 3}
+
+    t.deepEqual(res, expected)
+    t.end()
+})
+
+_tape('Values must be numbers, strings or objects', t => {
+    for (let value of [null, undefined, [], true, false]) {
+        let thrown = false
+
+        try {
+            estilo({ div: { width: value } })
+        } catch (exc) {
+            thrown = true
         }
+
+        t.ok(thrown, 'Error was raised for invalid value: ' + repr(value))
     }
-    t.deepEqual(style, estilo(style))
+
+    for (let value of [123, 'lol', {}]) {
+        estilo({ div: { width: value } })
+    }
+
     t.end()
 })
 
-tape('two rules are properly merged', t => {
-    const style = estilo([
-        {
-            'a': {
-                width: 1,
-            },
 
-            'b': {
-                height: 1,
+_tape('Media queries are reorganized properly', t => {
+    const res = estilo({
+        div: {
+            '@media screen': {
+                width: 100
             }
-        },
-        {
-            'b': {
-                height: 2,
-            }
-        },
-    ])
-
-    const expected = {
-        'a': {
-            width: 1,
-        },
-
-        'b': {
-            height: 2,
         }
-    }
-
-    t.deepEqual(style, expected)
-    t.end()
-})
-
-
-tape('two declaration blocks are properly merged', t => {
-    const style = estilo({
-        sel: [
-            {
-                width: 1,
-                height: 1,
-            },
-            {
-                height: 2,
-                borderWidth: 2,
-            }
-        ]
     })
 
     const expected = {
-        sel: {
-            width: 1,
-            height: 2,
-            borderWidth: 2,
+        '@media screen': {
+            div: {
+                width: 100
+            }
         }
     }
-    t.deepEqual(style, expected)
-    t.end()
-})
-
-tape('', t => {
+    t.deepEqual(res, expected)
     t.end()
 })
 

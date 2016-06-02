@@ -1,105 +1,50 @@
-function merge(...objs) {
-    const res = Object.create(null)
+'use strict'
 
-    objs.forEach(obj => {
-        Object.keys(obj).forEach(key => {
-            res[key] = obj[key]
-        })
-    })
+const mix = (...objs) => Object.assign({}, ...objs)
+
+exports.mix = mix
+
+
+const flattenRule = (selector, decBlock) => {
+    let res = {}
+
+    for (let [prop, value] of traverseObject(decBlock)) {
+
+        if (!isNumber(value) && !isString(value) && !isObject(value)) {
+            throw new TypeError(
+                `Invalid value: ${value}`
+                + ` in selector: "${selector}",`
+                + ` property: "${prop}"`
+            )
+        }
+        
+        if (isObject(value)) {
+            // Media query
+            if (prop.startsWith('@media')) {
+                res[prop] = res[prop] || {}
+                res[prop][selector] = value
+
+            // Nested selector
+            } else {
+                console.log('nested!')
+                let newRules = flattenRule([selector, prop].join(' '), value)
+                Object.assign(res, newRules)
+            }
+            continue
+        }
+
+        res[selector] = res[selector] || {}
+        res[selector][prop] = value
+    }
 
     return res
 }
-
-function flatMerge(objs) {
-    objs = objs.filter(Boolean).map(o => isArray(o) ? flatMerge(o) : o)
-
-    for (let obj of objs) {
-
-        for (let [key, val] of traverseObject(obj)) {
-
-            if (isArray(val)) {
-                obj[key] = flatMerge(val)
-            }
-
-        }
-    }
-
-    return Object.assign.apply(null, [{}, ...objs])
-}
-
-const isArray = Array.isArray
 
 
 function traverseObject(obj) {
-    const res = []
-
-    for (key of Object.keys(obj)) {
-        res.push([key, obj[key]])
-    }
-
-    return res
+    return Object.keys(obj).map(key => [key, obj[key]])
 }
 
-
-exports.estilo = function estilo(style) {
-
-    if (!isArray(style)) {
-        style = [style]
-    }
-
-    return flatMerge(style)
-}
-
-exports.Sheet = function Sheet(sheets) {
-    if (sheets === undefined) throw new TypeError('No data passed')
-
-    if (!isArray(sheets)) {
-        sheets = [sheets]
-    }
-
-    // TODO: flatten completely the array?
-    
-    const sheet = merge2(sheets)
-    const res = {}
-    let fixedProp
-    let declaration
-    let value
-
-    Object.keys(sheet).forEach(selector => {
-        declaration = sheet[selector]
-
-        if (!isPlainObject(declaration)) {
-            throw new TypeError('Not expected: ' + JSON.stringify(declaration))
-        }
-
-        Object.keys(declaration).forEach(property => {
-            value = declaration[property]
-
-            // accepted: string, number, array, object
-            if (isString(value) || isNumber(value)) {
-                declaration[property] = value
-                return true
-            }
-
-            if (isPlainObject(value)) {
-                value = [value]
-            }
-
-            if (isArray) {
-                value = merge2(value) 
-                declaration[property] = value
-                return true
-            }
-
-            throw new TypeError('Unexpected value: ' + JSON.stringify(value))
-
-        })
-
-        res[selector] = fixDeclarationKeys(declaration)
-    })
-
-    return res
-}
 
 function isNumber(value) {
     return typeof value === 'number' || value instanceof Number
@@ -110,9 +55,10 @@ function isString(value) {
     return typeof value === 'string' || value instanceof String
 }
 
-function isPlainObject(value) {
+function isObject(value) {
     return (
-        value instanceof Object 
+        value !== null
+        && value instanceof Object 
         && !(value instanceof Array) 
         && typeof value !== 'function'
     )
