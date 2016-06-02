@@ -41,6 +41,35 @@ const flattenRule = (selector, decBlock) => {
 }
 
 
+exports.render = function render(style) {
+    _render(style, 0)
+}
+
+function pad(text, count) {
+    return ' '.repeat(count) + text
+}
+
+const print = console.log
+
+function _render(style, indent) {
+
+    for (let [key, value] of traverseObject(style)) {
+        print(pad(key, indent) + ' {')
+        
+        for (let [subkey, subvalue] of traverseObject(value)) {
+
+            if (isNumber(subvalue)) {
+                subvalue += 'px'
+            }
+
+            print(pad(subkey + ': ' + subvalue + ';', indent + 2))
+        }
+
+        print(pad('}', indent))
+    }
+}
+
+
 function traverseObject(obj) {
     return Object.keys(obj).map(key => [key, obj[key]])
 }
