@@ -5,73 +5,85 @@ const mix = (...objs) => Object.assign({}, ...objs)
 exports.mix = mix
 
 
-const flattenRule = (selector, decBlock) => {
-    let res = {}
+exports.render = function render(style) {
+    _render(style, 0)
+}
 
-    for (let [prop, value] of traverseObject(decBlock)) {
 
-        if (!isNumber(value) && !isString(value) && !isObject(value)) {
-            throw new TypeError(
-                `Invalid value: ${value}`
-                + ` in selector: "${selector}",`
-                + ` property: "${prop}"`
-            )
-        }
+function _render(style, indent) {
+
+    for (let [key, value] of traverseObject(style, true)) {
+        print(pad(key, indent) + ' {')
         
-        if (isObject(value)) {
-            // Media query
-            if (prop.startsWith('@media')) {
-                res[prop] = res[prop] || {}
-                res[prop][selector] = value
-
-            // Nested selector
-            } else {
-                console.log('nested!')
-                let newRules = flattenRule([selector, prop].join(' '), value)
-                Object.assign(res, newRules)
-            }
-            continue
+        for (let [subkey, subvalue] of traverseObject(value, true)) {
+            print(pad(subkey + ': ' + subvalue + ';', indent + 2))
         }
 
-        res[selector] = res[selector] || {}
-        res[selector][prop] = value
+        print(pad('}\n', indent))
+    }
+}
+
+
+exports.normalize = function normalize(style) {
+    const res = {}
+
+    const declarations = extractDeclarations(style)
+
+    for (let [sel, dec] of declarations) {
+        res[sel.join(' ')] = objFromPairs(Object.keys(dec).map(key => [dasherize(key), dec[key]]))
     }
 
     return res
 }
 
 
-exports.render = function render(style) {
-    _render(style, 0)
+function extractDeclarations(dec, path = [], carrier = []) {
+    const plainDec = {}
+
+    for (let [key, val] of traverseObject(dec)) {
+        if (isObject(val)) {
+            extractDeclarations(val, path.concat(key), carrier)
+            continue
+        }
+
+        plainDec[key] = val
+    }
+
+    if (Object.keys(plainDec).length) {
+        carrier.push([path, plainDec])
+    }
+
+    return carrier
 }
+
 
 function pad(text, count) {
     return ' '.repeat(count) + text
 }
 
-const print = console.log
 
-function _render(style, indent) {
-
-    for (let [key, value] of traverseObject(style)) {
-        print(pad(key, indent) + ' {')
-        
-        for (let [subkey, subvalue] of traverseObject(value)) {
-
-            if (isNumber(subvalue)) {
-                subvalue += 'px'
-            }
-
-            print(pad(subkey + ': ' + subvalue + ';', indent + 2))
-        }
-
-        print(pad('}', indent))
+function objFromPairs(pairs) {
+    const res = {}
+    
+    for (let [key, val] of pairs) {
+        res[key] = val
     }
+
+    return res
 }
 
 
-function traverseObject(obj) {
-    return Object.keys(obj).map(key => [key, obj[key]])
+const print = console.log
+
+
+function traverseObject(obj, sorted = false) {
+    const keys = Object.keys(obj)
+    
+    if (sorted) {
+        keys.sort()
+    }
+
+    return keys.map(key => [key, obj[key]])
 }
 
 
@@ -79,10 +91,6 @@ function isNumber(value) {
     return typeof value === 'number' || value instanceof Number
 }
 
-
-function isString(value) {
-    return typeof value === 'string' || value instanceof String
-}
 
 function isObject(value) {
     return (
@@ -93,14 +101,6 @@ function isObject(value) {
     )
 }
 
-function fixDeclarationKeys(declaration) {
-    const res = {}
-
-    Object.keys(declaration).forEach(prop => {
-        fixedProp = prop.replace(/_/g, '-')
-        res[fixedProp] = declaration[prop]
-    })
-
-    return res
-}
+const dasherize = (str) => 
+    str.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase()
 
