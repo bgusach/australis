@@ -49,7 +49,7 @@ function extractDeclarations(dec, path = [], carrier = []) {
         plainDec[key] = val
     }
 
-    if (Object.keys(plainDec).length) {
+    if (!isEmpty(plainDec)) {
         carrier.push([path, plainDec])
     }
 
@@ -99,6 +99,15 @@ function isObject(value) {
         && !(value instanceof Array) 
         && typeof value !== 'function'
     )
+}
+
+
+const isEmpty = (obj) => {
+    for (let x in obj) {
+        return false
+    }
+
+    return true
 }
 
 const dasherize = (str) => 
