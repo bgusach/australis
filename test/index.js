@@ -8,11 +8,13 @@ const repr = JSON.stringify
 
 const _tape = () => null // just a dummy func to deactivate tests
 
+
 tape('Basic mixing works', t => {
     const res = mix({a: 1, b: 1, c: 1}, {b: 2}, {c: 3})
     t.deepEqual(res, {a: 1, b: 2, c: 3})
     t.end()
 })
+
 
 tape('Falsy values are ignored while mixing', t => {
     const res = mix({a: 2}, false, {b: 3}, null, undefined)
@@ -21,6 +23,55 @@ tape('Falsy values are ignored while mixing', t => {
     t.deepEqual(res, expected)
     t.end()
 })
+
+
+tape('Normalizing simple style', t => {
+    const input = {
+        selector: {
+            minWidth: '34px',
+            borderWidth: '10px',
+            backgroundColor: '#cccccc'
+        }
+    }
+
+    const expected = {
+        selector: {
+            'min-width': '34px',
+            'border-width': '10px',
+            'background-color': '#cccccc',
+        }
+    }
+
+    t.deepEqual(normalize(input), expected)
+
+    t.end()
+})
+
+
+tape('Normalizing nested style', t => {
+    const input = {
+        selector: {
+            subSelector: {
+                minWidth: '34px',
+                borderWidth: '10px',
+                backgroundColor: '#cccccc'
+            }
+        }
+    }
+
+    const expected = {
+        'selector subSelector': {
+            'min-width': '34px',
+            'border-width': '10px',
+            'background-color': '#cccccc',
+        }
+    }
+
+    t.deepEqual(normalize(input), expected)
+
+    t.end()
+})
+
 
 _tape('Values must be numbers, strings or objects', t => {
     for (let value of [null, undefined, [], true, false]) {
@@ -43,11 +94,15 @@ _tape('Values must be numbers, strings or objects', t => {
 })
 
 
-_tape('Media queries are reorganized properly', t => {
-    const res = estilo({
+tape('Non-nested media queries are reorganized properly', t => {
+    const res = normalize({
         div: {
+            height: '50px',
             '@media screen': {
-                width: 100
+                width: '100px', 
+                '.class': {
+                    zIndex: 45,
+                }
             }
         }
     })
@@ -55,58 +110,40 @@ _tape('Media queries are reorganized properly', t => {
     const expected = {
         '@media screen': {
             div: {
-                width: 100
+                width: '100px'
+            },
+
+            'div .class': {
+                'z-index': 45,
             }
-        }
+        },
+
+        div: {
+            height: '50px',
+        },
     }
     t.deepEqual(res, expected)
     t.end()
 })
 
-tape('normalizing simple style', t => {
-    const input = {
-        selector: {
-            minWidth: '34px',
-            borderWidth: '10px',
-            backgroundColor: '#cccccc'
+tape('Non-nestable at-rules are identified properly', t => {
+    const res = normalize({
+        '@charset': 'utf-8',
+        div: {
+            width: '10px'
         }
-    }
+    })
 
     const expected = {
-        selector: {
-            'min-width': '34px',
-            'border-width': '10px',
-            'background-color': '#cccccc',
+        '@charset': 'utf-8',
+        div: {
+            width: '10px'
         }
     }
 
-    t.deepEqual(normalize(input), expected)
+    t.deepEqual(res, expected)
 
     t.end()
-    
 })
 
-tape('normalizing nested style', t => {
-    const input = {
-        selector: {
-            subSelector: {
-                minWidth: '34px',
-                borderWidth: '10px',
-                backgroundColor: '#cccccc'
-            }
-        }
-    }
 
-    const expected = {
-        'selector subSelector': {
-            'min-width': '34px',
-            'border-width': '10px',
-            'background-color': '#cccccc',
-        }
-    }
-
-    t.deepEqual(normalize(input), expected)
-
-    t.end()
-    
-})
