@@ -2,29 +2,34 @@
   "name": "sierra",
   "version": "0.1.0",
   "description": "Dead simple Javascript to CSS compiler",
-  "main": "./src/index.js",
+  "main": "./dist/index.js",
   "bin": "./bin/sierra",
   "scripts": {
     "test": "tape test/index.js",
-    "watch": "watch 'npm run -s test' src test"
+    "watch": "watch 'npm run -s test' src test",
+    "build": "babel src --out-dir dist",
+    "clean": "rm -rf dist",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bgusach/sierra.git"
   },
   "keywords": [
-    "css", 
+    "css",
     "style",
     "css compiler",
     "css generator"
   ],
-  "author": "bgusach",
+  "author": "Bor González Usach <bgusach@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/bgusach/sierra/issues"
   },
   "homepage": "https://github.com/bgusach/sierra#readme",
   "devDependencies": {
+    "babel-cli": "^6.10.1",
+    "babel-preset-es2015": "^6.9.0",
     "lodash": "^4.12.0",
     "tape": "^4.5.1",
     "watch": "^0.18.0"

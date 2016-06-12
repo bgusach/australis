@@ -4,6 +4,8 @@
 Sierra is a tool to generate CSS from plain Javascript. It does not have any
 superpowers or overcomplex API: it does only one thing, and does it well.
 
+Of course, it follows [semantic versioning][semver].
+
 ## Why?
 Writing raw CSS can easily get quite tedious a task, and that is the reason for the
 rise of the CSS preprocessors like less, sass, stylus, etc. However, those entail
@@ -99,3 +101,4 @@ Will generate the following style sheet:
 - Integration with workflows
 - Dependency injection to allow custom behaviour
 
+[semver]: http://semver.org/
