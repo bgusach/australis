@@ -9,7 +9,7 @@
     "watch": "watch 'npm run -s test' src test",
     "build": "babel src --out-dir dist",
     "clean": "rm -rf dist",
-    "prepublish": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
