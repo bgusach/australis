@@ -1,7 +1,7 @@
 {
   "name": "sierra",
   "version": "0.2.2",
-  "description": "Dead simple Javascript to CSS compiler",
+  "description": "Minimalistic Javascript to CSS compiler",
   "main": "./dist/index.js",
   "bin": "./bin/sierra",
   "scripts": {
@@ -9,7 +9,7 @@
     "watch": "watch 'npm run -s test' src test",
     "build": "babel src --out-dir dist",
     "clean": "rm -rf dist",
-    "prepublishOnly": "npm run build"
+    "mypublish": "npm run build && npm publish ./"
   },
   "repository": {
     "type": "git",
