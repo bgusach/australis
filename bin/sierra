@@ -1,0 +1,23 @@
+#!/usr/bin/env node
+'use strict'
+
+const docopt = require('docopt').docopt
+const fs = require('fs')
+const generateSheet = require('../src').generateSheet
+const resolve = require('path').resolve
+
+const doc = `
+Usage: 
+    sierra <input> [--output=<output>]
+
+Options:
+    -o --output=<output>    Output file. If not provided, stdout will be used
+`
+
+const args = docopt(doc)
+const stream = args['--output'] ? fs.createWriteStream(args['--output']) : process.stdout
+const path = resolve(args['<input>'])
+const style = require(path).default
+
+generateSheet(style, stream)
+

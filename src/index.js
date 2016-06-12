@@ -1,42 +1,49 @@
 'use strict'
 
-const mix = (...objs) => Object.assign({}, ...objs)
-
-exports.mix = mix
-
-
-exports.render = function render(style) {
-    console.log(style)
-    _render(style)
+exports.mix = function mix(...objs) {
+    return Object.assign({}, ...objs)
 }
 
 
-function _render(style, indent = '') {
+exports.generateSheet = function generateSheet(style, stream = process.stdout) {
+    render(normalize(style), stream)
+}
+
+
+
+function render(style, stream, padding = '') {
 
     for (let [key, value] of objToPairs(style, true)) {
         if (isObject(value)) {
-            print(indent + key + ' {\n')
-            _render(value, indent + '  ')
-            print(indent + '}\n\n')
+            stream.write(padding + key + ' {\n')
+            render(value, stream, padding + '  ')
+            stream.write(padding + '}\n\n')
             continue
         }
 
-        print(indent + key + ': ' + value + ';\n')
+        stream.write(padding + key + ': ' + value + ';\n')
     }
 }
 
 
-exports.normalize = (style) => {
+function normalize(style) {
     const res = {}
-    const blocks = extractDeclarations(style)
+    const blocks = flattenNestedObject(style)
 
     for (let [path, dec] of blocks) {
+
+        dec = normalizeBlock(dec)
+
+        // key-part defined at top-level (at-rules). Just set them at top level
+        if (!path.length) {
+            Object.assign(res, dec)
+            continue
+        }
+
         let [atRules, selectors] = sieve(x => x.startsWith('@'), path)
         
         let atRule = joinAtRules(atRules)
         let selector = joinSelectors(selectors)
-
-        dec = normalizeBlock(dec)
 
         // If at-rule AND selector, the top-level at-rule block is created if missing
         // and within it a key for the selector is defined for the block declaration
@@ -49,14 +56,6 @@ exports.normalize = (style) => {
             continue
         }
 
-        // Special case for top-level non-nestable at-rules. This is the only case we can have of
-        // direct key-value pair. The recognized block is the top level of the CSS document.
-        if (!atRule && !selector) {
-            // TODO These at-rules need quotes
-            Object.assign(res, dec)
-            continue
-        }
-
         // Standard rule case with selector + declaration block
         res[selector] = dec
 
@@ -65,30 +64,38 @@ exports.normalize = (style) => {
     return res
 }
 
+exports.normalize = normalize
+
 
 /*
- * Given a property-value block, a new object with the normalized properties is returned
+ * Given a property-value block, it returns new object with the properties normalized
  */
-const normalizeBlock = (block) => objFromPairs(Object.keys(block).map(key => [dasherize(key), block[key]]))
+function normalizeBlock(block) {
+    return objFromPairs(Object.keys(block).map(key => [dasherize(key), block[key]]))
+}
 
 
-const joinSelectors = (selectors) => {
+function joinSelectors(selectors) {
     return selectors.join(' ')
 }
 
 
-const joinAtRules = (rules) => {
+function joinAtRules(rules) {
     // TODO: implement proper at-rules logic
     return rules.join(' and ')
 }
 
 
-function extractDeclarations(dec, path = [], carrier = []) {
+/**
+ * Given an arbitrarily nested object, it identifies the objects in the tree and 
+ * returns them plus the path where it was found.
+ */
+function flattenNestedObject(obj, path = [], carrier = []) {
     const plainDec = {}
 
-    for (let [key, val] of objToPairs(dec)) {
+    for (let [key, val] of objToPairs(obj)) {
         if (isObject(val)) {
-            extractDeclarations(val, path.concat(key), carrier)
+            flattenNestedObject(val, path.concat(key), carrier)
             continue
         }
 
@@ -103,11 +110,6 @@ function extractDeclarations(dec, path = [], carrier = []) {
 }
 
 
-function pad(text, count) {
-    return ' '.repeat(count) + text
-}
-
-
 function objFromPairs(pairs) {
     const res = {}
     
@@ -117,11 +119,6 @@ function objFromPairs(pairs) {
 
     return res
 }
-
-
-const print = process.stdout.write.bind(process.stdout)
-// const print = console.log
-
 
 
 function objToPairs(obj, sorted = false) {
@@ -135,11 +132,6 @@ function objToPairs(obj, sorted = false) {
 }
 
 
-function isNumber(value) {
-    return typeof value === 'number' || value instanceof Number
-}
-
-
 function isObject(value) {
     return (
         value !== null
@@ -150,7 +142,7 @@ function isObject(value) {
 }
 
 
-const isEmpty = (obj) => {
+function isEmpty(obj) {
     for (let x in obj) {
         if (obj.hasOwnProperty(x)) {
             return false
@@ -160,9 +152,13 @@ const isEmpty = (obj) => {
     return true
 }
 
-const dasherize = (str) => str.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase()
 
-const sieve = (pred, array) => {
+function dasherize(str) {
+    return str.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase()
+} 
+
+
+function sieve(pred, array) {
     const truthy = []
     const falsy = []
 

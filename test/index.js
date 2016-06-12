@@ -130,14 +130,14 @@ tape('Non-nestable at-rules are identified properly', t => {
     const res = normalize({
         '@charset': 'utf-8',
         div: {
-            width: '10px'
+            width: '10px',
         }
     })
 
     const expected = {
         '@charset': 'utf-8',
         div: {
-            width: '10px'
+            width: '10px',
         }
     }
 

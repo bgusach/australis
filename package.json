@@ -1,29 +1,35 @@
 {
-  "name": "estilo",
+  "name": "sierra",
   "version": "0.1.0",
   "description": "Dead simple Javascript to CSS compiler",
-  "main": "src/index.js",
+  "main": "./src/index.js",
+  "bin": "./bin/sierra",
   "scripts": {
     "test": "tape test/index.js",
     "watch": "watch 'npm run -s test' src test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bgusach/estilo.git"
+    "url": "git+https://github.com/bgusach/sierra.git"
   },
   "keywords": [
+    "css", 
+    "style",
     "css compiler",
     "css generator"
   ],
   "author": "bgusach",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bgusach/estilo/issues"
+    "url": "https://github.com/bgusach/sierra/issues"
   },
-  "homepage": "https://github.com/bgusach/estilo#readme",
+  "homepage": "https://github.com/bgusach/sierra#readme",
   "devDependencies": {
     "lodash": "^4.12.0",
     "tape": "^4.5.1",
     "watch": "^0.18.0"
+  },
+  "dependencies": {
+    "docopt": "^0.6.2"
   }
 }
