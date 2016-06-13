@@ -1,7 +1,7 @@
 'use strict'
 
 const tape = require('tape')
-const mix = require('../src').mix
+const tools = require('../src/tools')
 const normalize = require('../src').normalize
 const _ = require('lodash')
 const repr = JSON.stringify
@@ -10,14 +10,14 @@ const _tape = () => null // just a dummy func to deactivate tests
 
 
 tape('Basic mixing works', t => {
-    const res = mix({a: 1, b: 1, c: 1}, {b: 2}, {c: 3})
+    const res = tools.mix({a: 1, b: 1, c: 1}, {b: 2}, {c: 3})
     t.deepEqual(res, {a: 1, b: 2, c: 3})
     t.end()
 })
 
 
 tape('Falsy values are ignored while mixing', t => {
-    const res = mix({a: 2}, false, {b: 3}, null, undefined)
+    const res = tools.mix({a: 2}, false, {b: 3}, null, undefined)
     const expected = {a: 2, b: 3}
 
     t.deepEqual(res, expected)
@@ -146,4 +146,33 @@ tape('Non-nestable at-rules are identified properly', t => {
     t.end()
 })
 
+
+tape('tools.changeLight', t => {
+    const pairs = [
+        [tools.changeLight('#3388cc', 1.25), '#40aaff'],
+        [tools.changeLight('#40aaff', 0.8), '#3388cc'],
+        [tools.changeLight('#999999', 100), '#ffffff'],
+        [tools.changeLight('#999999', 0), '#000000'],
+    ]
+
+    for (let [res, exp] of pairs) {
+        t.equal(res, exp)
+    }
+
+    t.end()
+})
+
+tape('prefixing', t => {
+    const res = tools.prefix('borderRadius', 10)
+    const expected = {
+        'WebkitBorderRadius': 10,
+        'MozBorderRadius': 10,
+        'MsBorderRadius': 10,
+        'OBorderRadius': 10,
+    }
+
+    t.deepEqual(res, expected)
+
+    t.end()
+})
 

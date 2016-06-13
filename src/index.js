@@ -1,10 +1,5 @@
 'use strict'
 
-exports.mix = function mix(...objs) {
-    return Object.assign({}, ...objs)
-}
-
-
 exports.generateSheet = function generateSheet(style, stream = process.stdout) {
     render(normalize(style), stream)
 }

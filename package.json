@@ -1,7 +1,7 @@
 {
   "name": "sierra",
   "version": "0.2.3",
-  "description": "Minimalistic Javascript to CSS compiler",
+  "description": "Minimalist JavaScript to CSS compiler",
   "main": "./dist/index.js",
   "bin": "./bin/sierra",
   "scripts": {
