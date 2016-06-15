@@ -1,9 +1,8 @@
 'use strict'
 
 const tape = require('tape')
-const tools = require('../src/tools')
+const tools = require('../src').tools
 const normalize = require('../src').normalize
-const _ = require('lodash')
 const repr = JSON.stringify
 
 const _tape = () => null // just a dummy func to deactivate tests
@@ -163,8 +162,8 @@ tape('tools.changeLight', t => {
 })
 
 tape('prefixing', t => {
-    const res = tools.prefix('borderRadius', 10)
-    const expected = {
+    let res = tools.prefix('borderRadius', 10)
+    let expected = {
         'WebkitBorderRadius': 10,
         'MozBorderRadius': 10,
         'MsBorderRadius': 10,
@@ -173,6 +172,29 @@ tape('prefixing', t => {
 
     t.deepEqual(res, expected)
 
+    res = tools.prefix('borderRadius', 20, ['hey', 'ya'])
+    expected = {
+        'HeyBorderRadius': 20,
+        'YaBorderRadius': 20,
+    }
+
+    t.deepEqual(res, expected)
+
     t.end()
 })
+
+
+tape('multivalues: multiple values for one property', t => {
+    const res = tools.multivalue('prop', [1, 2, 3, 'lol'])
+    const exp = {
+        'prop/*0*/': 1,
+        'prop/*1*/': 2,
+        'prop/*2*/': 3,
+        'prop/*3*/': 'lol',
+    }
+    t.deepEqual(res, exp)
+    t.end()
+})
+
+
 

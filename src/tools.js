@@ -41,6 +41,7 @@ function changeLight(col, factor) {
         .join('')
 }
 
+const prefixes = ['webkit', 'moz', 'ms', 'o']
 
 /**
  * Given a property, a value and an optional array of prefixes,
@@ -50,18 +51,46 @@ function changeLight(col, factor) {
  * For consistency, keys follow the camelCase convention instead of 
  * dashes
  */
-function prefix(prop, value, prefixes = ['webkit', 'moz', 'ms', 'o']) {
+function prefix(prop, value, prefs = prefixes) {
     const res = {}
 
-    for (let pref of prefixes) {
+    for (let pref of prefs) {
         res[capitalize(pref) + capitalize(prop)] = value
     }
 
     return res
 }
 
+
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-module.exports = { mix, changeLight, prefix }
+
+/**
+ * Given a property and an array of values, it returns an object
+ * that will be rendered as if the property was defined for each value.
+ *
+ * For instance:
+ *
+ * multivalue('display', ['-ms-flexbox', '-webkit-flex', 'flex'])
+ *
+ * Will be rendered as:
+ *
+ * display: -ms-flexbox;
+ * display: -webkit-flex;
+ * display: flex;
+ *
+ */
+function multivalue(prop, values) {
+    const res = {}
+
+    values.forEach((val, idx) => {
+        res[prop + '/*' + idx + '*/'] = val
+    })
+
+    return res
+}
+
+
+module.exports = { mix, changeLight, prefix, prefixes, multivalue}

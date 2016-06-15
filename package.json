@@ -2,7 +2,7 @@
   "name": "sierra",
   "version": "0.2.4",
   "description": "Minimalist JavaScript to CSS compiler",
-  "main": "./dist/index.js",
+  "main": "./dist",
   "bin": "./bin/sierra",
   "scripts": {
     "test": "tape test/index.js",
@@ -30,7 +30,6 @@
   "devDependencies": {
     "babel-cli": "^6.10.1",
     "babel-preset-es2015": "^6.9.0",
-    "lodash": "^4.12.0",
     "tape": "^4.5.1",
     "watch": "^0.18.0"
   },

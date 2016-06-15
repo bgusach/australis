@@ -1,9 +1,11 @@
 'use strict'
 
+exports.tools = require('./tools')
+
+
 exports.generateSheet = function generateSheet(style, stream = process.stdout) {
     render(normalize(style), stream)
 }
-
 
 
 function render(style, stream, padding = '') {
@@ -16,8 +18,13 @@ function render(style, stream, padding = '') {
             continue
         }
 
-        stream.write(padding + key + ': ' + value + ';\n')
+        stream.write(padding + stripComments(key) + ': ' + value + ';\n')
     }
+}
+
+
+function stripComments(str) {
+    return str.replace(/\/\*.*\*\//g, '')
 }
 
 
@@ -149,10 +156,15 @@ function isEmpty(obj) {
 
 
 function dasherize(str) {
-    return str.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase()
+    return str.replace(/([A-Z])/g, '-$1').toLowerCase()
 } 
 
 
+/**
+ * Given a predicate function and an array, it returns it returns an array
+ * of two arrays. The first one contains the elements that satisfied the predicate
+ * and the second one, those that did not.
+ */
 function sieve(pred, array) {
     const truthy = []
     const falsy = []
