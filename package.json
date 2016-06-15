@@ -2,7 +2,7 @@
   "name": "sierra",
   "version": "0.2.4",
   "description": "Minimalist JavaScript to CSS compiler",
-  "main": "./dist",
+  "main": "./dist/index.js",
   "bin": "./bin/sierra",
   "scripts": {
     "test": "tape test/index.js",
