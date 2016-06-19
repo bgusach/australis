@@ -1,4 +1,3 @@
-
 /**
  * Given any number of objects, it merges/mixes all of them into a new object.
  * Since it is a shallow mixing, nested objects will not be copied, just
@@ -10,7 +9,7 @@
  * mix(obj1, obj2, boolValue & obj3)
  * 
  */
-function mix(...objs) {
+export function mix(...objs) {
     return Object.assign({}, ...objs.filter(Boolean))
 }
 
@@ -22,7 +21,7 @@ function mix(...objs) {
  *
  * Short forms like '#ccc' are also accepted, but returned expanded.
  */
-function changeLight(col, factor) {
+export function changeLight(col, factor) {
 
     col = col.substring(1)
   
@@ -41,7 +40,7 @@ function changeLight(col, factor) {
         .join('')
 }
 
-const prefixes = ['webkit', 'moz', 'ms', 'o']
+export const prefixes = ['webkit', 'moz', 'ms', 'o']
 
 /**
  * Given a property, a value and an optional array of prefixes,
@@ -51,7 +50,7 @@ const prefixes = ['webkit', 'moz', 'ms', 'o']
  * For consistency, keys follow the camelCase convention instead of 
  * dashes
  */
-function prefix(prop, value, prefs = prefixes) {
+export function prefix(prop, value, prefs = prefixes) {
     const res = {}
 
     for (let pref of prefs) {
@@ -82,7 +81,7 @@ function capitalize(str) {
  * display: flex;
  *
  */
-function multivalue(prop, values) {
+export function multivalue(prop, values) {
     const res = {}
 
     values.forEach((val, idx) => {
@@ -92,5 +91,3 @@ function multivalue(prop, values) {
     return res
 }
 
-
-module.exports = { mix, changeLight, prefix, prefixes, multivalue}

@@ -1,25 +1,24 @@
-'use strict'
 
-exports.tools = require('./tools')
-
-
-exports.generateSheet = function generateSheet(style, stream = process.stdout) {
-    render(normalize(style), stream)
+export function generateSheet(style) {
+    return render(normalize(style))
 }
 
 
-function render(style, stream, padding = '') {
+function render(style, padding = '') {
+    let res = ''
 
     for (let [key, value] of objToPairs(style, true)) {
         if (isObject(value)) {
-            stream.write(padding + key + ' {\n')
-            render(value, stream, padding + '  ')
-            stream.write(padding + '}\n\n')
+            res += padding + key + ' {\n'
+            res += render(value, padding + '  ')
+            res += padding + '}\n\n'
             continue
         }
 
-        stream.write(padding + stripComments(key) + ': ' + value + ';\n')
+        res += padding + stripComments(key) + ': ' + value + ';\n'
     }
+
+    return res
 }
 
 
@@ -28,7 +27,7 @@ function stripComments(str) {
 }
 
 
-function normalize(style) {
+export function normalize(style) {
     const res = {}
     const blocks = flattenNestedObject(style)
 
@@ -66,7 +65,6 @@ function normalize(style) {
     return res
 }
 
-exports.normalize = normalize
 
 
 /*

@@ -3,7 +3,7 @@
 
 const docopt = require('docopt').docopt
 const fs = require('fs')
-const generateSheet = require('../dist').generateSheet
+const generateSheet = require('..').generateSheet
 const resolve = require('path').resolve
 
 const doc = `
@@ -15,9 +15,9 @@ Options:
 `
 
 const args = docopt(doc)
-const stream = args['--output'] ? fs.createWriteStream(args['--output']) : process.stdout
 const path = resolve(args['<input>'])
 const style = require(path).default
 
-generateSheet(style, stream)
+const stream = args['--output'] ? fs.createWriteStream(args['--output']) : process.stdout
+stream.write(generateSheet(style))
 

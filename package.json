@@ -2,13 +2,13 @@
   "name": "sierra",
   "version": "0.2.4",
   "description": "Minimalist JavaScript to CSS compiler",
-  "main": "./dist/index.js",
+  "main": "./index.js",
   "bin": "./bin/sierra",
   "scripts": {
     "test": "tape test/index.js",
-    "watch": "watch 'npm run -s test' src test",
-    "build": "babel src --out-dir dist",
-    "clean": "rm -rf dist",
+    "watch": "watch 'npm run build && npm run -s test' src test",
+    "build": "babel src --out-dir .",
+    "clean": "rm *.js",
     "mypublish": "npm run build && npm publish ./"
   },
   "repository": {

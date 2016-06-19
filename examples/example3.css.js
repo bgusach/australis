@@ -1,4 +1,4 @@
-const mix = require('sierra').tools.mix
+const mix = require('../tools').mix
 
 const square = {
     width: '50px',

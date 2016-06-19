@@ -1,8 +1,8 @@
 'use strict'
 
 const tape = require('tape')
-const tools = require('../src').tools
-const normalize = require('../src').normalize
+const tools = require('../tools')
+const normalize = require('..').normalize
 const repr = JSON.stringify
 
 const _tape = () => null // just a dummy func to deactivate tests

@@ -8,17 +8,22 @@ Of course, it follows [semantic versioning][semver].
 
 ## Why?
 Writing raw CSS can easily get quite tedious a task, and that is the reason for the
-rise of the CSS preprocessors like less, sass, stylus, etc. However, those entail
+rise of the CSS preprocessors like LESS, SASS, Stylus, etc. However, those entail
 learning yet another new language and commiting to memory details about how to declare
 variables or functions, scopes, etc.  But why not using Javascript to define our style? 
 chances are you already know it if you are reading this. 
 
 There are already out there some solutions that use Javascript 
-for this purpose, but they are absurdly complex and suffer from feature creep.
+for this purpose, mainly [absurdjs][absurdjs] and [restyle][restyle], but they don't target the 
+same goals as this project. `absurdjs` is powerful, too powerful in that it does way too many things
+which turns out in a complex API. `restyle` is quite simple, but its API is not so clear, especially
+when it comes to add vendor prefixes, and it misses very useful features like selector nesting.
 
-Sierra however, aims for simplicity. Its name stands for saw in Spanish. Think of a handsaw.
-How long does it take to learn its purpose and interface, and then use it properly? 
-that is the minimalism this project strives for.
+Sierra aims first of all for simplicity, but does not want to miss out on the useful stuff that 
+actually justifies the usage of an extra tool instead of writing raw CSS.
+
+Its name stands for saw in Spanish. Think of a handsaw. How long does it take to learn its purpose 
+and interface, and then use it properly? that is the minimalism this project strives for.
 
 
 ## How?
@@ -102,3 +107,5 @@ Will generate the following style sheet:
 - Dependency injection to allow custom behaviour
 
 [semver]: http://semver.org/
+[absurdjs]: http://absurdjs.com/
+[restyle]: https://github.com/WebReflection/restyle#restyle
