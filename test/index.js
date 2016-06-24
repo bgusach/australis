@@ -5,8 +5,6 @@ const tools = require('../tools')
 const normalize = require('..').normalize
 const repr = JSON.stringify
 
-const _tape = () => null // just a dummy func to deactivate tests
-
 
 tape('Basic mixing works', t => {
     const res = tools.mix({a: 1, b: 1, c: 1}, {b: 2}, {c: 3})
@@ -67,27 +65,6 @@ tape('Normalizing nested style', t => {
     }
 
     t.deepEqual(normalize(input), expected)
-
-    t.end()
-})
-
-
-_tape('Values must be numbers, strings or objects', t => {
-    for (let value of [null, undefined, [], true, false]) {
-        let thrown = false
-
-        try {
-            estilo({ div: { width: value } })
-        } catch (exc) {
-            thrown = true
-        }
-
-        t.ok(thrown, 'Error was raised for invalid value: ' + repr(value))
-    }
-
-    for (let value of [123, 'lol', {}]) {
-        estilo({ div: { width: value } })
-    }
 
     t.end()
 })
@@ -184,7 +161,7 @@ tape('prefixing', t => {
 })
 
 
-tape('multivalues: multiple values for one property', t => {
+tape('tools.multivalue: multiple values for one property', t => {
     const res = tools.multivalue('prop', [1, 2, 3, 'lol'])
     const exp = {
         'prop/*0*/': 1,
@@ -197,4 +174,32 @@ tape('multivalues: multiple values for one property', t => {
 })
 
 
+tape('@media queries nesting results in AND-ed elements', t => {
+    const res = normalize({
+        '@media screen': {
+            '.class1': {
+                fontSize: '10px',
+                '@media (min-width: 500px)': {
+                    color: 'red',
+                },
+            },
+        },
+    })
 
+    const expected = {
+        '@media screen': {
+            '.class1': {
+                'font-size': '10px',
+            },
+        },
+
+        '@media screen and (min-width: 500px)': {
+            '.class1': {
+                color: 'red',
+            },
+        },
+    }
+
+    t.deepEqual(res, expected)
+    t.end()
+})

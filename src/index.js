@@ -81,8 +81,15 @@ function joinSelectors(selectors) {
 
 
 function joinAtRules(rules) {
-    // TODO: implement proper at-rules logic
-    return rules.join(' and ')
+    if (!rules.length) {
+        return ''
+    }
+
+    const splitRules = rules.map(r => /@(\w+)(.*)/.exec(r).slice(1))
+    const ruleTypes = splitRules.map(x => x[0])
+    const rest = splitRules.map(x => x[1].trim())
+
+    return '@' + ruleTypes[0] + ' ' + rest.join(' and ')
 }
 
 
