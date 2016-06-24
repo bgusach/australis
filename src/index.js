@@ -6,8 +6,12 @@ export function generateSheet(style) {
 
 function render(style, padding = '') {
     let res = ''
+    let joinChar
+    console.log(style)
 
     for (let [key, value] of objToPairs(style, true)) {
+        key = stripComments(key)
+
         if (isObject(value)) {
             res += padding + key + ' {\n'
             res += render(value, padding + '  ')
@@ -15,10 +19,16 @@ function render(style, padding = '') {
             continue
         }
 
-        res += padding + stripComments(key) + ': ' + value + ';\n'
+        joinChar = isAtRule(key) ? '' : ':'
+
+        res += padding + key + joinChar + ' ' + value + ';\n'
     }
 
     return res
+}
+
+function isAtRule(str) {
+    return str.startsWith('@')
 }
 
 
@@ -30,6 +40,7 @@ function stripComments(str) {
 export function normalize(style) {
     const res = {}
     const blocks = flattenNestedObject(style)
+    console.log(blocks)
 
     for (let [path, dec] of blocks) {
 
@@ -41,7 +52,7 @@ export function normalize(style) {
             continue
         }
 
-        let [atRules, selectors] = sieve(x => x.startsWith('@'), path)
+        let [atRules, selectors] = sieve(isAtRule, path)
         
         let atRule = joinAtRules(atRules)
         let selector = joinSelectors(selectors)
@@ -57,8 +68,8 @@ export function normalize(style) {
             continue
         }
 
-        // Standard rule case with selector + declaration block
-        res[selector] = dec
+        // Either selector or at-rule
+        res[atRule + selector] = dec
 
     }
 
@@ -86,10 +97,10 @@ function joinAtRules(rules) {
     }
 
     const splitRules = rules.map(r => /@(\w+)(.*)/.exec(r).slice(1))
-    const ruleTypes = splitRules.map(x => x[0])
-    const rest = splitRules.map(x => x[1].trim())
+    const keywords = splitRules.map(x => x[0])
+    const ruleBodies = splitRules.map(x => x[1].trim())
 
-    return '@' + ruleTypes[0] + ' ' + rest.join(' and ')
+    return '@' + keywords[0] + ' ' + ruleBodies.join(' and ')
 }
 
 

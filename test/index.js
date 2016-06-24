@@ -3,6 +3,7 @@
 const tape = require('tape')
 const tools = require('../tools')
 const normalize = require('..').normalize
+const generateSheet = require('..').generateSheet
 const repr = JSON.stringify
 
 
@@ -201,5 +202,76 @@ tape('@media queries nesting results in AND-ed elements', t => {
     }
 
     t.deepEqual(res, expected)
+    t.end()
+})
+
+tape('Regular/flat at-rules like @import @charset or @namespace work fine', t => {
+    let res = normalize({'@charset': '"utf-8"'})
+    let expected = {'@charset': '"utf-8"'}
+    t.deepEqual(res, expected)
+
+    res = generateSheet({'@charset': '"utf-8"'}).trim()
+    expected = '@charset "utf-8";'
+    t.equal(res, expected)
+
+    // TODO: make imports go before anything
+    res = generateSheet({'@import': '"some.css"'}).trim()
+    expected = '@import "some.css";'
+    t.equal(res, expected)
+
+    res = generateSheet({'@namespace': 'svg url(http://www.w3.org/2000/svg)'}).trim()
+    expected = '@namespace svg url(http://www.w3.org/2000/svg);'
+    t.equal(res, expected)
+
+    t.end()
+})
+
+/**
+ * Small helper to remove any whitespaces, tabs or breaklines so that string comparisons
+ * are easier and more reliable
+ */
+function normalizeString(str) {
+    return str.replace(/\s/g, '')
+}
+
+tape('font-face at-rule works', t => {
+    let res = generateSheet({
+        '@font-face': {
+            fontFamily: '"Bitstream Vera Serif Bold"',
+            src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")'
+        }
+    })
+
+    let expected = `
+        @font-face {
+          font-family: "Bitstream Vera Serif Bold";
+          src: url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf");
+        }
+    `
+    t.equal(normalizeString(res), normalizeString(expected))
+    t.end()
+})
+
+tape('page at-rule', t => {
+    const res = generateSheet({
+        '@page': {
+            margin: '2px',
+        },
+        // TODO: consider if we want to allow @page nesting
+        '@page :first': {
+            marginTop: '10px',
+        }
+    })
+
+    const exp = `
+        @page { 
+            margin: 2px;
+        }
+
+        @page :first {
+          margin-top: 10px;
+        }
+    `
+    t.equal(normalizeString(res), normalizeString(exp))
     t.end()
 })
