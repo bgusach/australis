@@ -6,8 +6,6 @@ export function generateSheet(style) {
 
 function render(style, padding = '') {
     let res = ''
-    let joinChar
-    console.log(style)
 
     for (let [key, value] of objToPairs(style, true)) {
         key = stripComments(key)
@@ -19,7 +17,7 @@ function render(style, padding = '') {
             continue
         }
 
-        joinChar = isAtRule(key) ? '' : ':'
+        let joinChar = isAtRule(key) ? '' : ':'
 
         res += padding + key + joinChar + ' ' + value + ';\n'
     }
@@ -40,42 +38,43 @@ function stripComments(str) {
 export function normalize(style) {
     const res = {}
     const blocks = flattenNestedObject(style)
-    console.log(blocks)
 
     for (let [path, dec] of blocks) {
 
         dec = normalizeBlock(dec)
 
-        // key-part defined at top-level (at-rules). Just set them at top level
-        if (!path.length) {
-            Object.assign(res, dec)
-            continue
-        }
+        let targetDec = res
 
-        let [atRules, selectors] = sieve(isAtRule, path)
-        
-        let atRule = joinAtRules(atRules)
-        let selector = joinSelectors(selectors)
+        for (let segment of fixPath(path)) {
 
-        // If at-rule AND selector, the top-level at-rule block is created if missing
-        // and within it a key for the selector is defined for the block declaration
-        if (atRule && selector) {
-            if (!res[atRule]) {
-                res[atRule] = {}
+            if (!targetDec.hasOwnProperty(segment)) {
+                targetDec[segment] = {}
             }
 
-            res[atRule][selector] = dec
-            continue
+            targetDec = targetDec[segment]
         }
 
-        // Either selector or at-rule
-        res[atRule + selector] = dec
-
+        Object.assign(targetDec, dec)
     }
 
     return res
 }
 
+/**
+ * Given an array of strings representing the path of a declaration block in the 
+ * style object, it bubbles up the at-rules, merges them if possible and merges 
+ * the nested normal selectors as well
+ */
+function fixPath(path) {
+    const [atRules, selectors] = sieve(isAtRule, path)
+    const res = mergeAtRules(atRules)
+    
+    if (selectors.length) {
+        res.push(joinSelectors(selectors))
+    }
+
+    return res
+}
 
 
 /*
@@ -91,16 +90,81 @@ function joinSelectors(selectors) {
 }
 
 
-function joinAtRules(rules) {
-    if (!rules.length) {
-        return ''
+/**
+ * Given an array of at-rules, it merges those rules that can be merged and returns
+ * a new array with the resulting rules
+ */
+function mergeAtRules(rules) {
+    const res = []
+
+    const parsedRules = rules.map(parseAtRule)  // still ordered
+    const rulesByKeyword = groupBy(r => r.keyword, parsedRules)
+    const processedKeywords = Object.create(null)
+
+    let atRule
+
+    for (let { keyword, condition } of parsedRules) {
+        if (processedKeywords[keyword]) {
+            continue
+        }
+
+        // If it is not mergeable, reconstruct it and push it
+        if (!mergeableRuleKeywords.hasOwnProperty(keyword)) {
+            atRule = buildAtRule(keyword, [condition])
+            res.push(atRule)
+            continue
+        }
+
+        atRule = buildAtRule(keyword, rulesByKeyword[keyword].map(r => r.condition))
+        res.push(atRule)
+
+        processedKeywords[keyword] = true
     }
 
-    const splitRules = rules.map(r => /@(\w+)(.*)/.exec(r).slice(1))
-    const keywords = splitRules.map(x => x[0])
-    const ruleBodies = splitRules.map(x => x[1].trim())
+    return res
+}
 
-    return '@' + keywords[0] + ' ' + ruleBodies.join(' and ')
+function buildAtRule(keyword, conditions) {
+    const joinedCond = conditions.join(' and ')
+    return '@' + keyword + (joinedCond ? ' ' + joinedCond : '')
+}
+
+
+// Keywords of at-rules that can be merged
+// Based on https://developer.mozilla.org/en/docs/Web/CSS/At-rule
+const mergeableRuleKeywords = {
+    media: true, 
+    supports: true, 
+    document: true,
+}
+
+
+function groupBy(key, items) {
+    const res = Object.create(null)
+
+    for (let item of items) {
+        let val = key(item)
+
+        if (!res[val]) {
+            res[val] = []
+        }
+
+        res[val].push(item)
+    }
+
+    return res
+}
+
+/**
+ * Given a at-rule string, it parses and returns an object containing the keyword
+ * and the body (the rest).
+ *
+ * @media screen => { keyword: 'media', condition: 'screen' }
+ */
+function parseAtRule(ruleStr) {
+    let [, keyword, condition] = /@([a-zA-Z\-]*)(.*)/.exec(ruleStr)
+
+    return { keyword, condition: condition.trim() }
 }
 
 

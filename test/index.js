@@ -4,7 +4,6 @@ const tape = require('tape')
 const tools = require('../tools')
 const normalize = require('..').normalize
 const generateSheet = require('..').generateSheet
-const repr = JSON.stringify
 
 
 tape('Basic mixing works', t => {
@@ -15,8 +14,8 @@ tape('Basic mixing works', t => {
 
 
 tape('Falsy values are ignored while mixing', t => {
-    const res = tools.mix({a: 2}, false, {b: 3}, null, undefined)
-    const expected = {a: 2, b: 3}
+    const res = tools.mix({ a: 2 }, false, { b: 3 }, null, undefined)
+    const expected = { a: 2, b: 3 }
 
     t.deepEqual(res, expected)
     t.end()
@@ -226,13 +225,15 @@ tape('Regular/flat at-rules like @import @charset or @namespace work fine', t =>
     t.end()
 })
 
+
 /**
- * Small helper to remove any whitespaces, tabs or breaklines so that string comparisons
- * are easier and more reliable
+ * Small helper to normalize CSS strings so that they can be compared ignoring
+ * whitespaces, linebreaks etc
  */
-function normalizeString(str) {
-    return str.replace(/\s/g, '')
+function normalizeCSS(str) {
+    return str.replace(/\s+/g, ' ').trim()
 }
+
 
 tape('font-face at-rule works', t => {
     let res = generateSheet({
@@ -248,7 +249,7 @@ tape('font-face at-rule works', t => {
           src: url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf");
         }
     `
-    t.equal(normalizeString(res), normalizeString(expected))
+    t.equal(normalizeCSS(res), normalizeCSS(expected))
     t.end()
 })
 
@@ -272,6 +273,40 @@ tape('page at-rule', t => {
           margin-top: 10px;
         }
     `
-    t.equal(normalizeString(res), normalizeString(exp))
+    t.equal(normalizeCSS(res), normalizeCSS(exp))
+    t.end()
+})
+
+tape('Only conditional at-rules are AND-ed. Other types are left nested', t => {
+    const res = generateSheet({
+        '@media screen': {
+            '@media (min-width: 700px)': {
+                '@keyframes move': {
+                    '0%': {
+                        transform: 'translateX(50%)',
+                    },
+
+                    '100%': {
+                        transform: 'translateX(-50%)',
+                    },
+                }
+            }
+        }
+    })
+
+    const exp = `
+        @media screen and (min-width: 700px) {
+            @keyframes move {
+                0% {
+                    transform: translateX(50%);
+                }
+                100% {
+                    transform: translateX(-50%);
+                }
+            }
+        }
+    `
+
+    t.equal(normalizeCSS(res), normalizeCSS(exp))
     t.end()
 })
