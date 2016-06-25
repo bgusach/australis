@@ -1,4 +1,3 @@
-
 export function generateSheet(style) {
     return render(normalize(style))
 }
@@ -117,6 +116,7 @@ function normalize(style) {
     return res
 }
 
+
 /**
  * Given an array of strings representing the path of a declaration block in the 
  * style object, it bubbles up the at-rules, merges them if possible and merges 
@@ -181,6 +181,7 @@ function mergeAtRules(rules) {
     return res
 }
 
+
 function buildAtRule(keyword, conditions) {
     // If multiple conditions, and any has an or inside, wrap with brackets
     if (conditions.length > 1 && conditions.some(x => /or[ (]/.test(x))) {
@@ -202,22 +203,6 @@ const mergeableRuleKeywords = {
     document: true,
 }
 
-
-function groupBy(key, items) {
-    const res = Object.create(null)
-
-    for (let item of items) {
-        let val = key(item)
-
-        if (!res[val]) {
-            res[val] = []
-        }
-
-        res[val].push(item)
-    }
-
-    return res
-}
 
 /**
  * Given a at-rule string, it parses and returns an object containing the keyword
@@ -254,6 +239,11 @@ function flattenNestedObject(obj, path = [], carrier = []) {
 
     return carrier
 }
+
+
+function dasherize(str) {
+    return str.replace(/([A-Z])/g, '-$1').toLowerCase()
+} 
 
 
 function objFromPairs(pairs) {
@@ -293,11 +283,6 @@ function isEmpty(obj) {
 }
 
 
-function dasherize(str) {
-    return str.replace(/([A-Z])/g, '-$1').toLowerCase()
-} 
-
-
 /**
  * Given a predicate function and an array, it returns it returns an array
  * of two arrays. The first one contains the elements that satisfied the predicate
@@ -313,3 +298,21 @@ function sieve(pred, array) {
 
     return [truthy, falsy]
 }
+
+
+function groupBy(key, items) {
+    const res = Object.create(null)
+
+    for (let item of items) {
+        let val = key(item)
+
+        if (!res[val]) {
+            res[val] = []
+        }
+
+        res[val].push(item)
+    }
+
+    return res
+}
+
