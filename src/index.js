@@ -1,8 +1,14 @@
+/**
+ * Translates a sierra style object into its corresponding string
+ */
 export function generateSheet(style) {
     return render(normalize(style))
 }
 
 
+/**
+ * Given a normalized style object, it returns a string with the generated CSS
+ */
 function render(style, padding = '') {
     let res = ''
     const keys = Object.keys(style).sort(compareRules)
@@ -86,11 +92,19 @@ function isAtRule(str) {
 }
 
 
+/**
+ * Given a string, returns a new string with the comments removed.
+ * Comments format is / * ... * / (without the spaces)
+ */
 function stripComments(str) {
     return str.replace(/\/\*.*\*\//g, '')
 }
 
 
+/**
+ * Given a style object, it returns a new object where all the nesting has been
+ * resolved and property names dasherized
+ */
 function normalize(style) {
     const res = {}
     const blocks = flattenNestedObject(style)
@@ -135,10 +149,16 @@ function fixPath(path) {
 
 
 /*
- * Given a property-value block, it returns new object with the properties normalized
+ * Given a property-value block, it returns new object with the properties dasherized
  */
 function normalizeBlock(block) {
-    return objFromPairs(Object.keys(block).map(key => [dasherize(key), block[key]]))
+    const res = {}
+
+    for (let key of Object.keys(block)) {
+        res[dasherize(key)] = block[key]
+    }
+
+    return res
 }
 
 
@@ -224,7 +244,9 @@ function parseAtRule(ruleStr) {
 function flattenNestedObject(obj, path = [], carrier = []) {
     const plainDec = {}
 
-    for (let [key, val] of objToPairs(obj)) {
+    for (let key of Object.keys(obj)) {
+        let val = obj[key]
+
         if (isObject(val)) {
             flattenNestedObject(val, path.concat(key), carrier)
             continue
@@ -244,22 +266,6 @@ function flattenNestedObject(obj, path = [], carrier = []) {
 function dasherize(str) {
     return str.replace(/([A-Z])/g, '-$1').toLowerCase()
 } 
-
-
-function objFromPairs(pairs) {
-    const res = {}
-    
-    for (let [key, val] of pairs) {
-        res[key] = val
-    }
-
-    return res
-}
-
-
-function objToPairs(obj) {
-    return Object.keys(obj).map(key => [key, obj[key]])
-}
 
 
 function isObject(value) {
@@ -300,6 +306,11 @@ function sieve(pred, array) {
 }
 
 
+/**
+ * Given a callback function to extract the key two group, and an array of elements,
+ * it returns an object where the keys are the values returned by the callback
+ * and the values arrays of elements that shared the same key.
+ */
 function groupBy(key, items) {
     const res = Object.create(null)
 
