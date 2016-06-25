@@ -53,6 +53,7 @@ tape('tools.prefixing', t => {
         'MozBorderRadius': 10,
         'MsBorderRadius': 10,
         'OBorderRadius': 10,
+        'borderRadius': 10,
     }
 
     t.deepEqual(res, expected)
@@ -61,10 +62,32 @@ tape('tools.prefixing', t => {
     expected = {
         'HeyBorderRadius': 20,
         'YaBorderRadius': 20,
+        'borderRadius': 20,
     }
 
     t.deepEqual(res, expected)
 
+    res = tools.prefix(
+        '@keyframe hey', 
+        { 
+            from: { top: '0px' }, 
+            to: { top: '10px' }
+        }, 
+        ['webkit']
+    )
+
+    expected = {
+        '@keyframe hey': { 
+            from: { top: '0px' }, 
+            to: { top: '10px' }
+        }, 
+        '@WebkitKeyframe hey': { 
+            from: { top: '0px' }, 
+            to: { top: '10px' }
+        }, 
+    }
+
+    t.deepEqual(res, expected)
     t.end()
 })
 

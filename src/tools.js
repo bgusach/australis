@@ -51,10 +51,17 @@ export const prefixes = ['webkit', 'moz', 'ms', 'o']
  * dashes
  */
 export function prefix(prop, value, prefs = prefixes) {
-    const res = {}
+    const res = { [prop]: value }
+    let atRule = false
+
+    if (prop.startsWith('@')) {
+        atRule = true
+        prop = prop.substring(1)
+    }
 
     for (let pref of prefs) {
-        res[capitalize(pref) + capitalize(prop)] = value
+        let key = (atRule ? '@' : '') + capitalize(pref) + capitalize(prop)
+        res[key] = value
     }
 
     return res
