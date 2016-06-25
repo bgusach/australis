@@ -2,123 +2,30 @@
 
 const tape = require('tape')
 const tools = require('../tools')
-const normalize = require('..').normalize
 const generateSheet = require('..').generateSheet
 
 
-tape('Basic mixing works', t => {
+/**
+ * Small helper to normalize CSS strings so that they can be compared ignoring
+ * whitespaces, linebreaks etc
+ */
+function normalizeCSS(str) {
+    return str.replace(/\s+/g, ' ').trim()
+}
+
+
+tape('tools.mix basic mixing works', t => {
     const res = tools.mix({a: 1, b: 1, c: 1}, {b: 2}, {c: 3})
     t.deepEqual(res, {a: 1, b: 2, c: 3})
     t.end()
 })
 
 
-tape('Falsy values are ignored while mixing', t => {
+tape('tools.mix falsy values are ignored while mixing', t => {
     const res = tools.mix({ a: 2 }, false, { b: 3 }, null, undefined)
     const expected = { a: 2, b: 3 }
 
     t.deepEqual(res, expected)
-    t.end()
-})
-
-
-tape('Normalizing simple style', t => {
-    const input = {
-        selector: {
-            minWidth: '34px',
-            borderWidth: '10px',
-            backgroundColor: '#cccccc'
-        }
-    }
-
-    const expected = {
-        selector: {
-            'min-width': '34px',
-            'border-width': '10px',
-            'background-color': '#cccccc',
-        }
-    }
-
-    t.deepEqual(normalize(input), expected)
-
-    t.end()
-})
-
-
-tape('Normalizing nested style', t => {
-    const input = {
-        selector: {
-            subSelector: {
-                minWidth: '34px',
-                borderWidth: '10px',
-                backgroundColor: '#cccccc'
-            }
-        }
-    }
-
-    const expected = {
-        'selector subSelector': {
-            'min-width': '34px',
-            'border-width': '10px',
-            'background-color': '#cccccc',
-        }
-    }
-
-    t.deepEqual(normalize(input), expected)
-
-    t.end()
-})
-
-
-tape('Non-nested media queries are reorganized properly', t => {
-    const res = normalize({
-        div: {
-            height: '50px',
-            '@media screen': {
-                width: '100px', 
-                '.class': {
-                    zIndex: 45,
-                }
-            }
-        }
-    })
-
-    const expected = {
-        '@media screen': {
-            div: {
-                width: '100px'
-            },
-
-            'div .class': {
-                'z-index': 45,
-            }
-        },
-
-        div: {
-            height: '50px',
-        },
-    }
-    t.deepEqual(res, expected)
-    t.end()
-})
-
-tape('Non-nestable at-rules are identified properly', t => {
-    const res = normalize({
-        '@charset': 'utf-8',
-        div: {
-            width: '10px',
-        }
-    })
-
-    const expected = {
-        '@charset': 'utf-8',
-        div: {
-            width: '10px',
-        }
-    }
-
-    t.deepEqual(res, expected)
-
     t.end()
 })
 
@@ -138,7 +45,8 @@ tape('tools.changeLight', t => {
     t.end()
 })
 
-tape('prefixing', t => {
+
+tape('tools.prefixing', t => {
     let res = tools.prefix('borderRadius', 10)
     let expected = {
         'WebkitBorderRadius': 10,
@@ -174,8 +82,113 @@ tape('tools.multivalue: multiple values for one property', t => {
 })
 
 
+tape('Rendering simple style', t => {
+    const res = generateSheet({
+        selector: {
+            minWidth: '34px',
+            borderWidth: '10px',
+            backgroundColor: '#cccccc'
+        }
+    })
+
+    const expected = `
+        selector {
+          background-color: #cccccc;
+          border-width: 10px;
+          min-width: 34px;
+        }
+    `
+
+    t.deepEqual(normalizeCSS(res), normalizeCSS(expected))
+
+    t.end()
+})
+
+
+tape('Rendering nested style', t => {
+    const res = generateSheet({
+        selector: {
+            subSelector: {
+                minWidth: '34px',
+                borderWidth: '10px',
+                backgroundColor: '#cccccc'
+            }
+        }
+    })
+
+    const expected = `
+        selector subSelector {
+            background-color: #cccccc;
+            border-width: 10px;
+            min-width: 34px;
+        }
+    `
+
+    t.deepEqual(normalizeCSS(res), normalizeCSS(expected))
+
+    t.end()
+})
+
+
+tape('Non-nested media queries are reorganized properly', t => {
+    const res = generateSheet({
+        div: {
+            height: '50px',
+            '@media screen': {
+                width: '100px', 
+                '.class': {
+                    zIndex: 45,
+                }
+            }
+        }
+    })
+
+    const expected = `
+        @media screen {
+            div {
+                width: 100px;
+            }
+
+            div .class {
+                z-index: 45;
+            }
+        }
+
+        div {
+            height: 50px;
+        }
+    `
+
+    t.deepEqual(normalizeCSS(res), normalizeCSS(expected))
+    t.end()
+})
+
+tape('Non-nestable at-rules are identified properly', t => {
+    const res = generateSheet({
+        '@charset': '"utf-8"',
+        div: {
+            width: '10px',
+        }
+    })
+
+    const expected =  `
+        @charset "utf-8";
+
+        div {
+            width: 10px;
+        }
+    `
+    t.deepEqual(normalizeCSS(res), normalizeCSS(expected))
+
+    t.end()
+})
+
+
+
+
+
 tape('@media queries nesting results in AND-ed elements', t => {
-    const res = normalize({
+    const res = generateSheet({
         '@media screen': {
             '.class1': {
                 fontSize: '10px',
@@ -186,37 +199,34 @@ tape('@media queries nesting results in AND-ed elements', t => {
         },
     })
 
-    const expected = {
-        '@media screen': {
-            '.class1': {
-                'font-size': '10px',
-            },
-        },
+    const expected = `
+        @media screen {
+            .class1 {
+                font-size: 10px;
+            }
+        }
 
-        '@media screen and (min-width: 500px)': {
-            '.class1': {
-                color: 'red',
-            },
-        },
-    }
+        @media screen and (min-width: 500px) {
+            .class1 {
+                color: red;
+            }
+        }
+    `
 
-    t.deepEqual(res, expected)
+    t.equal(normalizeCSS(res), normalizeCSS(expected))
     t.end()
 })
 
+
 tape('Regular/flat at-rules like @import @charset or @namespace work fine', t => {
-    let res = normalize({'@charset': '"utf-8"'})
-    let expected = {'@charset': '"utf-8"'}
-    t.deepEqual(res, expected)
+    let res = generateSheet({'@charset': '"utf-8"'})
+    let expected = '@charset "utf-8";'
 
-    res = generateSheet({'@charset': '"utf-8"'}).trim()
-    expected = '@charset "utf-8";'
-    t.equal(res, expected)
+    t.equal(normalizeCSS(res), normalizeCSS(expected))
 
-    // TODO: make imports go before anything
     res = generateSheet({'@import': '"some.css"'}).trim()
     expected = '@import "some.css";'
-    t.equal(res, expected)
+    t.equal(normalizeCSS(res), normalizeCSS(expected))
 
     res = generateSheet({'@namespace': 'svg url(http://www.w3.org/2000/svg)'}).trim()
     expected = '@namespace svg url(http://www.w3.org/2000/svg);'
@@ -225,14 +235,7 @@ tape('Regular/flat at-rules like @import @charset or @namespace work fine', t =>
     t.end()
 })
 
-
-/**
- * Small helper to normalize CSS strings so that they can be compared ignoring
- * whitespaces, linebreaks etc
- */
-function normalizeCSS(str) {
-    return str.replace(/\s+/g, ' ').trim()
-}
+// TODO: test rendering order @charset, etc...
 
 
 tape('font-face at-rule works', t => {

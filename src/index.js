@@ -6,8 +6,10 @@ export function generateSheet(style) {
 
 function render(style, padding = '') {
     let res = ''
+    const keys = Object.keys(style).sort(compareRules)
 
-    for (let [key, value] of objToPairs(style, true)) {
+    for (let key of keys) {
+        let value = style[key]
         key = stripComments(key)
 
         if (isObject(value)) {
@@ -25,6 +27,52 @@ function render(style, padding = '') {
     return res
 }
 
+/**
+ * Function to sort rules before rendering
+ */
+function compareRules(a, b) {
+
+    // @charset rule has the highest prio
+    if (isCharsetRule(a) && !isCharsetRule(b)) {
+        return -1
+    }
+
+    if (!isCharsetRule(a) && isCharsetRule(b)) {
+        return 1
+    }
+
+    // @charset rule has the 2nd highest prio
+    if (isAtRule(a) && !isAtRule(b)) {
+        return -1
+    }
+
+    // At-rules have higher prio than the rest
+    if (!isAtRule(a) && isAtRule(b)) {
+        return 1
+    }
+
+    // Otherwise just compare normally
+    if (a < b) {
+        return -1
+    }
+
+    if (a === b) {
+        return 0
+    }
+
+    return 1
+}
+
+function isCharsetRule(str) {
+    return str.startsWith('@charset')
+}
+
+
+function isIncludeRule(str) {
+    return str.startsWith('@include')
+}
+
+
 function isAtRule(str) {
     return str.startsWith('@')
 }
@@ -35,7 +83,7 @@ function stripComments(str) {
 }
 
 
-export function normalize(style) {
+function normalize(style) {
     const res = {}
     const blocks = flattenNestedObject(style)
 
@@ -203,14 +251,8 @@ function objFromPairs(pairs) {
 }
 
 
-function objToPairs(obj, sorted = false) {
-    const keys = Object.keys(obj)
-    
-    if (sorted) {
-        keys.sort()
-    }
-
-    return keys.map(key => [key, obj[key]])
+function objToPairs(obj) {
+    return Object.keys(obj).map(key => [key, obj[key]])
 }
 
 
