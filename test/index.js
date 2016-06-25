@@ -313,3 +313,70 @@ tape('Only conditional at-rules are AND-ed. Other types are left nested', t => {
     t.equal(normalizeCSS(res), normalizeCSS(exp))
     t.end()
 })
+
+
+tape('If nestig a conditional at-rule with an OR inside, brackets are added where necessary', t => {
+    const res = generateSheet({
+        '@media screen or print': {
+            '@media (min-width: 700px)': {
+                '.class1': {
+                    width: '50px',
+                }
+            }
+        }
+    })
+
+    const exp = `
+        @media (screen or print) and (min-width: 700px) {
+            .class1 {
+                width: 50px;
+            }
+        }
+    `
+
+    t.equal(normalizeCSS(res), normalizeCSS(exp))
+    t.end()
+})
+
+
+tape('Render order: @charset, @include, rest of at-rules alphabetically, selectors alphabetically', t => {
+    const res = generateSheet({
+        '.class1': {
+            zIndex: 10,
+
+            '@media screen': {
+                zIndex: 20,
+            },
+
+        },
+
+        '.class2': {
+            zIndex: 40,
+        },
+
+        '@include': '"someother.css"',
+        '@charset': '"utf-8"',
+    })
+
+    const exp = `
+        @charset "utf-8";
+
+        @include "someother.css";
+
+        @media screen {
+            .class1 {
+                z-index: 20;
+            }
+        }
+
+        .class1 {
+            z-index: 10;
+        }
+
+        .class2 {
+            z-index: 40;
+        }
+    `
+    t.equal(normalizeCSS(res), normalizeCSS(exp))
+    t.end()
+})

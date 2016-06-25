@@ -41,12 +41,20 @@ function compareRules(a, b) {
         return 1
     }
 
-    // @charset rule has the 2nd highest prio
+    // @include rule has the 2nd highest prio
+    if (isIncludeRule(a) && !isIncludeRule(b)) {
+        return -1
+    }
+
+    if (!isIncludeRule(a) && isIncludeRule(b)) {
+        return 1
+    }
+
+    // At-rules have higher prio than the rest
     if (isAtRule(a) && !isAtRule(b)) {
         return -1
     }
 
-    // At-rules have higher prio than the rest
     if (!isAtRule(a) && isAtRule(b)) {
         return 1
     }
@@ -62,6 +70,7 @@ function compareRules(a, b) {
 
     return 1
 }
+
 
 function isCharsetRule(str) {
     return str.startsWith('@charset')
@@ -173,6 +182,13 @@ function mergeAtRules(rules) {
 }
 
 function buildAtRule(keyword, conditions) {
+    // If multiple conditions, and any has an or inside, wrap with brackets
+    if (conditions.length > 1 && conditions.some(x => /or[ (]/.test(x))) {
+        conditions = conditions.map(x => {
+            return x.startsWith('(') && x.endsWith(')') ? x : '(' + x + ')'
+        })
+    }
+    
     const joinedCond = conditions.join(' and ')
     return '@' + keyword + (joinedCond ? ' ' + joinedCond : '')
 }
