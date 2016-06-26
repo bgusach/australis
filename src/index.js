@@ -2,7 +2,7 @@
  * Translates a sierra style object into its corresponding string
  */
 export function generateSheet(style) {
-    return render(normalize(style))
+    return render(resolveNesting(style))
 }
 
 
@@ -26,7 +26,7 @@ function render(style, padding = '') {
 
         let joinChar = isAtRule(key) ? '' : ':'
 
-        res += padding + key + joinChar + ' ' + value + ';\n'
+        res += padding + dasherize(key) + joinChar + ' ' + value + ';\n'
     }
 
     return res
@@ -103,15 +103,13 @@ function stripComments(str) {
 
 /**
  * Given a style object, it returns a new object where all the nesting has been
- * resolved and property names dasherized
+ * resolved
  */
-function normalize(style) {
+function resolveNesting(style) {
     const res = {}
     const blocks = flattenNestedObject(style)
 
     for (let [path, dec] of blocks) {
-
-        dec = normalizeBlock(dec)
 
         let targetDec = res
 
@@ -142,20 +140,6 @@ function fixPath(path) {
     
     if (selectors.length) {
         res.push(joinSelectors(selectors))
-    }
-
-    return res
-}
-
-
-/*
- * Given a property-value block, it returns new object with the properties dasherized
- */
-function normalizeBlock(block) {
-    const res = {}
-
-    for (let key of Object.keys(block)) {
-        res[dasherize(key)] = block[key]
     }
 
     return res
