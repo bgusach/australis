@@ -10,8 +10,12 @@ export default {
             color: blue,
         },
 
-        '@media screen and (max-width: 1000px)': {
-            paddingLeft: '20px',
+        '@media screen': {
+            paddingTop: '10px',
+
+            '@media (max-width: 1000px)': {
+                paddingLeft: '20px',
+            }
         }
     },
 

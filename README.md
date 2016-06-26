@@ -1,15 +1,20 @@
 # Sierra
+[![npm](https://img.shields.io/npm/l/sierra.svg?maxAge=2592000)]()
+[![npm](https://img.shields.io/npm/v/sierra.svg?maxAge=2592000)]()
+[![SemVer](http://img.shields.io/:semver-2.0.0-brightgreen.svg)]()
 
 ## What?
 Sierra is a tool to generate CSS from plain Javascript. It does not have any
 superpowers or overcomplex API: it does only one thing, and does it well.
 
-Of course, it follows [semantic versioning][semver].
+It is important to mention that this tool does not check the validity of the result.
+Inconsistent inputs will produce inconsistent outputs. If some extra validation is needed,
+it is recommended add a tool like [csslint][csslint] to the chain.
 
 ## Why?
 Writing raw CSS can easily get quite tedious a task, and that is the reason for the
-rise of the CSS preprocessors like LESS, SASS, Stylus, etc. However, those entail
-learning yet another new language and commiting to memory details about how to declare
+rise of the CSS preprocessors like [less][less], [sass][sass], [stylus][stylus], etc. However, 
+those entail learning yet another new language and commiting to memory details about how to declare
 variables or functions, scopes, etc.  But why not using Javascript to define our style? 
 chances are you already know it if you are reading this. 
 
@@ -27,21 +32,21 @@ and interface, and then use it properly? that is the minimalism this project str
 
 
 ## How?
-There are actually very few things to learn to start using sierra. The style
-information has to be stored in a plain Javascript object, saved in a module and 
-exported as `default`. The extension `.css.js` is recommended to make the purpose crystal clear.
 
-Then, these are the conventions you have to learn:
+Define your style object in a module, and `export default` it (or `exports.default = ...` if using CommonJS)
 
-- In order to reduce the amount of string quoting, the name of the properties can be 
-  written as camelCase and will be automatically converted to dashes. For instance 
-  `minWidth` will result in `min-width`
+These are the conventions you have to learn:
 
-- Nesting selectors results in properly combined flattened selectors
+- For properties containing a dash, you can define them in camelCase and it will be automatically 
+  transformed to dashed form. For instance `minWidth` will result in `min-width`
 
-- Nesting selectors and at-rules results in bubbling of the at-rules to the top.
+- If an object is defined within an object, it is understood as nesting and results in 
+  merging the selectors or the at-rules if possible (only at-rules `@media`, `@document` or `@supports` are 
+  merged). The merging always has an "and" meaning. Therefore if `.class2` is nested within `.class1`, the
+  selector for the declaration block defined within `.class2` will be `.class1 .class2`. Same goes for at-rules
+  although these will be bubbled up and show up before the normal selectors.
 
-To generate the style sheet, just call `sierra path/to/style.css.js`, optionally
+Then, to generate the style sheet, just call `sierra path/to/style.css.js`, optionally
 passing an output path as well.
 
 
@@ -50,7 +55,6 @@ passing an output path as well.
 This style declaration:
 
 ```javascript
-// example1.css.js
 const blue = '#00F'
 
 export default {
@@ -63,8 +67,12 @@ export default {
             color: blue,
         },
 
-        '@media screen and (max-width: 1000px)': {
-            paddingLeft: '20px',
+        '@media screen': {
+            paddingTop: '10px',
+
+            '@media (max-width: 1000px)': {
+                paddingLeft: '20px',
+            }
         }
     },
 
@@ -72,17 +80,21 @@ export default {
         backgroundColor: blue,
     },
 }
-
 ```
 
 Will generate the following style sheet:
 
 ```css
+@media screen {
+  .class1 {
+    padding-top: 10px;
+  }
+}
+
 @media screen and (max-width: 1000px) {
   .class1 {
     padding-left: 20px;
   }
-
 }
 
 .class1 {
@@ -101,12 +113,9 @@ Will generate the following style sheet:
 ```
 
 
-## Roadmap
-- Useful helpers
-- Full support for at-rules (nesting does not completely work right now)
-- Integration with workflows
-- Dependency injection to allow custom behaviour
-
-[semver]: http://semver.org/
 [absurdjs]: http://absurdjs.com/
 [restyle]: https://github.com/WebReflection/restyle#restyle
+[csslint]: https://github.com/CSSLint/csslint
+[less]: https://github.com/less/less.js
+[sass]: https://github.com/sass/sass
+[stylus]: https://github.com/stylus/stylus
