@@ -1,6 +1,6 @@
 const blue = '#00F'
 
-exports.default = {
+export default {
     '.class1': {
         minWidth: '40px',
         zIndex: 10,

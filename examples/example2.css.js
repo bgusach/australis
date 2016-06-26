@@ -1,7 +1,7 @@
-const tools = require('sierra').tools
+import { multivalue, prefix } from '../tools'
 
-exports.default = {
-    '.class1': tools.multivalue('display', ['-ms-flexbox', '-webkit-flex', 'flex']),
+export default {
+    '.class1': multivalue('display', ['-ms-flexbox', '-webkit-flex', 'flex']),
 
-    '.class2': tools.prefix('animation', 'slide'),
+    '.class2': prefix('animation', 'slide'),
 }

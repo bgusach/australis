@@ -50,10 +50,10 @@ passing an output path as well.
 This style declaration:
 
 ```javascript
-// style.css.js
+// example1.css.js
 const blue = '#00F'
 
-exports.default = {
+export default {
     '.class1': {
         minWidth: '40px',
         zIndex: 10,
@@ -72,11 +72,19 @@ exports.default = {
         backgroundColor: blue,
     },
 }
+
 ```
 
 Will generate the following style sheet:
 
 ```css
+@media screen and (max-width: 1000px) {
+  .class1 {
+    padding-left: 20px;
+  }
+
+}
+
 .class1 {
   min-width: 40px;
   z-index: 10;
@@ -89,13 +97,6 @@ Will generate the following style sheet:
 
 .class3 {
   background-color: #00F;
-}
-
-@media screen and (max-width: 1000px) {
-  .class1 {
-    padding-left: 20px;
-  }
-
 }
 ```
 

@@ -1,4 +1,4 @@
-const mix = require('../tools').mix
+import { mix } from '../tools'
 
 const square = {
     width: '50px',
@@ -12,13 +12,20 @@ const bordered = {
 }
 
 
-exports.default = {
-    '.class1': mix(square, bordered, {
-        backgroundColor: 'red',
-    }),
+export default {
+    '.class1': mix(
+        square, 
+        bordered, 
+        {
+            backgroundColor: 'red',
+        }
+    ),
 
-    '.class2': mix(square, {
-        position: 'float',
-        padding: '1px 1px 3px 10px',
-    })
+    '.class2': mix(
+        square, 
+        {
+            position: 'float',
+            padding: '1px 1px 3px 10px',
+        }
+    )
 }

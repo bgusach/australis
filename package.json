@@ -9,7 +9,8 @@
     "watch": "watch 'npm run build && npm run -s test' src test",
     "build": "babel src --out-dir .",
     "clean": "rm *.js",
-    "mypublish": "npm run build && npm publish ./"
+    "mypublish": "npm run build && npm publish ./",
+    "example": "babel-node ./bin/sierra"
   },
   "repository": {
     "type": "git",
