@@ -49,10 +49,10 @@ tape('tools.changeLight', t => {
 tape('tools.prefixing', t => {
     let res = tools.prefix('borderRadius', 10)
     let expected = {
-        'WebkitBorderRadius': 10,
-        'MozBorderRadius': 10,
-        'MsBorderRadius': 10,
-        'OBorderRadius': 10,
+        '-webkit-borderRadius': 10,
+        '-moz-borderRadius': 10,
+        '-ms-borderRadius': 10,
+        '-o-borderRadius': 10,
         'borderRadius': 10,
     }
 
@@ -60,8 +60,8 @@ tape('tools.prefixing', t => {
 
     res = tools.prefix('borderRadius', 20, ['hey', 'ya'])
     expected = {
-        'HeyBorderRadius': 20,
-        'YaBorderRadius': 20,
+        '-hey-borderRadius': 20,
+        '-ya-borderRadius': 20,
         'borderRadius': 20,
     }
 
@@ -81,13 +81,27 @@ tape('tools.prefixing', t => {
             from: { top: '0px' }, 
             to: { top: '10px' }
         }, 
-        '@WebkitKeyframe hey': { 
+        '@-webkit-keyframe hey': { 
             from: { top: '0px' }, 
             to: { top: '10px' }
         }, 
     }
 
     t.deepEqual(res, expected)
+    res = generateSheet(res)
+    expected = `
+        @-webkit-keyframe hey {
+            from { top: 0px; }
+            to { top: 10px; }
+        }
+
+        @keyframe hey {
+            from { top: 0px; }
+            to { top: 10px; }
+        }
+    `
+
+    t.equal(normalizeCSS(res), normalizeCSS(expected))
     t.end()
 })
 

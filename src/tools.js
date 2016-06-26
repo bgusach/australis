@@ -46,9 +46,6 @@ export const prefixes = ['webkit', 'moz', 'ms', 'o']
  * Given a property, a value and an optional array of prefixes,
  * returns an object with the different prefixed properties as keys,
  * and the passed value for each key. 
- *
- * For consistency, keys follow the camelCase convention instead of 
- * dashes
  */
 export function prefix(prop, value, prefs = prefixes) {
     const res = { [prop]: value }
@@ -60,16 +57,15 @@ export function prefix(prop, value, prefs = prefixes) {
     }
 
     for (let pref of prefs) {
-        let key = (atRule ? '@' : '') + capitalize(pref) + capitalize(prop)
+        // Since this function can be used for properties but also for
+        // selectors/at-rule keywords, we can't use the camelCase convetion
+        // for it may change HTML class selectors that can have upper case
+        // letters
+        let key = (atRule ? '@' : '') + '-' + pref + '-' + prop
         res[key] = value
     }
 
     return res
-}
-
-
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
 
