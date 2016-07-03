@@ -11,7 +11,7 @@ const resolve = require('path').resolve
 
 const doc = `
 Usage: 
-    sierra <input> [--output=<output>]
+    australis <input> [--output=<output>]
 
 Options:
     -o --output=<output>    Output file. If not provided, stdout will be used

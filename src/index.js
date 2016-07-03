@@ -9,7 +9,7 @@ import {
 } from './helpers'
 
 /**
- * Translates a sierra style object into its corresponding string
+ * Translates a australis style object into its corresponding string
  */
 export function generateSheet(style) {
     return render(resolveNesting(style))

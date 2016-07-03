@@ -1,20 +1,22 @@
 {
-  "name": "sierra",
+  "name": "australis",
   "version": "0.2.4",
   "description": "Minimalist JavaScript to CSS compiler",
   "main": "./index.js",
-  "bin": "./bin/sierra",
+  "bin": {
+    "australis": "./bin/australis"
+  },
   "scripts": {
     "test": "tape test/index.js",
     "watch": "watch 'npm run build && npm run -s test' src test",
     "build": "babel src --out-dir .",
     "clean": "rm *.js",
     "mypublish": "npm run build && npm publish ./",
-    "example": "babel-node ./bin/sierra"
+    "example": "babel-node ./bin/australis"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bgusach/sierra.git"
+    "url": "git+https://github.com/bgusach/australis.git"
   },
   "keywords": [
     "css",
@@ -25,9 +27,9 @@
   "author": "Bor González Usach <bgusach@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bgusach/sierra/issues"
+    "url": "https://github.com/bgusach/australis/issues"
   },
-  "homepage": "https://github.com/bgusach/sierra#readme",
+  "homepage": "https://github.com/bgusach/australis#readme",
   "devDependencies": {
     "babel-cli": "^6.10.1",
     "babel-preset-es2015": "^6.9.0",
@@ -36,5 +38,9 @@
   },
   "dependencies": {
     "docopt": "^0.6.2"
+  },
+  "directories": {
+    "example": "examples",
+    "test": "test"
   }
 }

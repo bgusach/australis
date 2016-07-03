@@ -1,10 +1,10 @@
-# Sierra
-[![npm](https://img.shields.io/npm/l/sierra.svg?maxAge=2592000)]()
-[![npm](https://img.shields.io/npm/v/sierra.svg?maxAge=2592000)]()
+# Australis
+[![npm](https://img.shields.io/npm/l/australis.svg?maxAge=2592000)]()
+[![npm](https://img.shields.io/npm/v/australis.svg?maxAge=2592000)]()
 [![SemVer](http://img.shields.io/:semver-2.0.0-brightgreen.svg)]()
 
 ## What?
-Sierra is a tool to generate CSS from plain JavaScript. It does not have any
+`australis` is a tool to generate CSS from plain JavaScript. It does not have any
 superpowers or overcomplex API: it does only one thing, and does it well.
 
 It is important to mention that this tool does not check the validity of the result.
@@ -24,16 +24,13 @@ same goals as this project. `absurdjs` is powerful, too powerful in that it does
 which turns out in a complex API. `restyle` is quite simple, but its API is not so clear, especially
 when it comes to add vendor prefixes, and it misses very useful features like selector nesting.
 
-Sierra aims first of all for simplicity, but does not want to miss out on the useful stuff that 
+`australis` aims first of all for simplicity, but does not want to miss out on the useful stuff that 
 actually justifies the usage of an extra tool instead of writing raw CSS.
-
-Its name stands for saw in Spanish. Think of a handsaw. How long does it take to learn its purpose 
-and interface, and then use it properly? that is the minimalism this project strives for.
 
 
 ## Example
 
-This is an example of a style sheet defined in `sierra`:
+This is an example of a style sheet defined in `australis`:
 
 ```javascript
 // Value definition
@@ -117,10 +114,10 @@ These are the conventions you have to learn:
 - If a property contains a comment in the form `/* comment */`, the comment itself will be not be in the
   output
 
-Then, to generate the style sheet, just call `sierra path/to/style.css.js`, optionally
+Then, to generate the style sheet, just call `australis path/to/style.css.js`, optionally
 passing an output path as well.
 
-While the previously explained is the core of `sierra` and it is enough to get the ball rolling, 
+While the previously explained is the core of `australis` and it is enough to get the ball rolling, 
 there are a few tools defined in the `tools` module that will help you with typical CSS tasks. Those
 are described in the API section
 
@@ -129,14 +126,14 @@ are described in the API section
 This package is on `npm` so just:
 
 ```
-npm install sierra --save-dev
+npm install australis --save-dev
 ```
 
 ## API
 
-### sierra.generateCSS(style)
+### australis.generateCSS(style)
 
-This function is the core of the package. It receives a `sierra` style object and returns the generated 
+This function is the core of the package. It receives a `australis` style object and returns the generated 
 CSS string. The CLI API is just a wrapper around this.
 
 The result will be sorted in the following order:
@@ -158,7 +155,7 @@ If falsy values are passed, they will be ignored, so that it is easy to conditio
 Usage example:
 
 ```javascript
-import { mix } from 'sierra/tools'
+import { mix } from 'australis/tools'
 
 // This is the mixin
 const square = {
@@ -248,7 +245,7 @@ and `value` for each value (it can be used with at-rules as well, like `key-fram
 Example:
 
 ```javascript
-import { prefix } from 'sierra/tools'
+import { prefix } from 'australis/tools'
 
 export default {
     '.animated': prefix('animation', 'slide')
@@ -275,7 +272,7 @@ that will be rendered as if the property was defined for each value.
 Example:
 
 ```javascript
-import { multivalue } from 'sierra/tools'
+import { multivalue } from 'australis/tools'
 
 export default {
     '.my-flex-box': multivalue('display', ['-ms-flexbox', '-webkit-flex', 'flex']),
