@@ -1,3 +1,13 @@
+import { 
+    isObject,
+    isEmpty,
+    sieve,
+    groupBy,
+    isCharsetRule,
+    isIncludeRule,
+    isAtRule
+} from './helpers'
+
 /**
  * Translates a sierra style object into its corresponding string
  */
@@ -74,21 +84,6 @@ function compareRules(a, b) {
     }
 
     return 1
-}
-
-
-function isCharsetRule(str) {
-    return str.startsWith('@charset')
-}
-
-
-function isIncludeRule(str) {
-    return str.startsWith('@include')
-}
-
-
-function isAtRule(str) {
-    return str.startsWith('@')
 }
 
 
@@ -251,63 +246,4 @@ function dasherize(str) {
     return str.replace(/([A-Z])/g, '-$1').toLowerCase()
 } 
 
-
-function isObject(value) {
-    return (
-        value !== null
-        && value instanceof Object 
-        && !(value instanceof Array) 
-        && typeof value !== 'function'
-    )
-}
-
-
-function isEmpty(obj) {
-    for (let x in obj) {
-        if (obj.hasOwnProperty(x)) {
-            return false
-        }
-    }
-
-    return true
-}
-
-
-/**
- * Given a predicate function and an array, it returns it returns an array
- * of two arrays. The first one contains the elements that satisfied the predicate
- * and the second one, those that did not.
- */
-function sieve(pred, array) {
-    const truthy = []
-    const falsy = []
-
-    for (let item of array) {
-        (pred(item) ? truthy : falsy).push(item)
-    }
-
-    return [truthy, falsy]
-}
-
-
-/**
- * Given a callback function to extract the key two group, and an array of elements,
- * it returns an object where the keys are the values returned by the callback
- * and the values arrays of elements that shared the same key.
- */
-function groupBy(key, items) {
-    const res = Object.create(null)
-
-    for (let item of items) {
-        let val = key(item)
-
-        if (!res[val]) {
-            res[val] = []
-        }
-
-        res[val].push(item)
-    }
-
-    return res
-}
 

@@ -1,3 +1,5 @@
+import { isAtRule } from './helpers'
+
 /**
  * Given any number of objects, it merges/mixes all of them into a new object.
  * Since it is a shallow mixing, nested objects will not be copied, just
@@ -40,25 +42,24 @@ export function changeLight(col, factor) {
         .join('')
 }
 
-export const prefixes = ['webkit', 'moz', 'ms', 'o']
 
 /**
  * Given a property, a value and an optional array of prefixes,
  * returns an object with the different prefixed properties as keys,
  * and the passed value for each key. 
  */
-export function prefix(prop, value, prefs = prefixes) {
+export function prefix(prop, value, prefs = ['webkit', 'moz', 'ms', 'o']) {
     const res = { [prop]: value }
     let atRule = false
 
-    if (prop.startsWith('@')) {
+    if (isAtRule(prop)) {
         atRule = true
         prop = prop.substring(1)
     }
 
     for (let pref of prefs) {
         // Since this function can be used for properties but also for
-        // selectors/at-rule keywords, we can't use the camelCase convetion
+        // selectors/at-rule keywords, we can't use the camelCase convention
         // for it may change HTML class selectors that can have upper case
         // letters
         let key = (atRule ? '@' : '') + '-' + pref + '-' + prop

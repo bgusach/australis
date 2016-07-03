@@ -1,8 +1,8 @@
 'use strict'
 
 const tape = require('tape')
-const tools = require('../tools')
 const generateSheet = require('..').generateSheet
+const tools = require('../tools')
 
 
 /**
@@ -14,14 +14,14 @@ function normalizeCSS(str) {
 }
 
 
-tape('tools.mix basic mixing works', t => {
+tape('mix: basic mixing works', t => {
     const res = tools.mix({a: 1, b: 1, c: 1}, {b: 2}, {c: 3})
     t.deepEqual(res, {a: 1, b: 2, c: 3})
     t.end()
 })
 
 
-tape('tools.mix falsy values are ignored while mixing', t => {
+tape('mix: falsy values are ignored while mixing', t => {
     const res = tools.mix({ a: 2 }, false, { b: 3 }, null, undefined)
     const expected = { a: 2, b: 3 }
 
@@ -30,7 +30,7 @@ tape('tools.mix falsy values are ignored while mixing', t => {
 })
 
 
-tape('tools.changeLight', t => {
+tape('changeLight', t => {
     const pairs = [
         [tools.changeLight('#3388cc', 1.25), '#40aaff'],
         [tools.changeLight('#40aaff', 0.8), '#3388cc'],
@@ -46,7 +46,7 @@ tape('tools.changeLight', t => {
 })
 
 
-tape('tools.prefixing', t => {
+tape('prefixing', t => {
     let res = tools.prefix('borderRadius', 10)
     let expected = {
         '-webkit-borderRadius': 10,
@@ -106,7 +106,7 @@ tape('tools.prefixing', t => {
 })
 
 
-tape('tools.multivalue: multiple values for one property', t => {
+tape('multivalue: multiple values for one property', t => {
     const res = tools.multivalue('prop', [1, 2, 3, 'lol'])
     const exp = {
         'prop/*0*/': 1,

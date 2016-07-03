@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 'use strict'
 
+import { isObject } from '../helpers'
+
+
 const docopt = require('docopt').docopt
 const fs = require('fs')
 const generateSheet = require('..').generateSheet
@@ -17,6 +20,10 @@ Options:
 const args = docopt(doc)
 const path = resolve(args['<input>'])
 const style = require(path).default
+
+if (!isObject(style)) {
+    throw new Error('No style object could be found in ' + path)
+}
 
 const stream = args['--output'] ? fs.createWriteStream(args['--output']) : process.stdout
 stream.write(generateSheet(style))
