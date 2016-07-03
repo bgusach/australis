@@ -117,7 +117,81 @@ These are the conventions you have to learn:
 Then, to generate the style sheet, just call `sierra path/to/style.css.js`, optionally
 passing an output path as well.
 
-While this is the core of `sierra` and it is enough to get the ball rolling, there is another module `tools` in
+While the previously explained is the core of `sierra` and it is enough to get the ball rolling, 
+there are a few tools defined in the module that will help you with typical CSS tasks. Those
+are described in the API section
+
+## Install
+
+This package is on `npm` so just:
+
+```
+npm install sierra --save-dev
+```
+
+## API
+
+### generateCSS(style)
+
+This function receives a `sierra` style object and returns the generated CSS string.
+
+If this package is to be used on the browser, this method must be called and its return value
+appended to a style tag (a bundling engine like `browserify` or `webpack` is needed to bring this 
+to the browser)
+
+
+### mix(...objects)
+
+Function to perform mixins. Receives any number of objects, and returns a shallow merge of all of them
+Falsy values can be passed, so that it is easy to conditionally include.
+
+Usage example:
+
+```javascript
+import { mix } from 'sierra'
+
+// This is the mixin
+const square = {
+    width: '50px',
+    height: '50px',
+}
+
+const condition = false
+
+export default {
+    '.class1': mix(
+        square,
+        {
+            backgroundColor: 'red',
+        }
+    ),
+
+    '.class2': mix(
+        square & condition,  
+        {
+            position: 'float',
+            padding: '1px 1px 3px 10px',
+        }
+    )
+}
+```
+
+Output:
+
+```css
+.class1 {
+  background-color: red;
+  height: 50px;
+  width: 50px;
+}
+
+.class2 {
+  padding: 1px 1px 3px 10px;
+  position: float;
+}
+```
+
+### changeLight(col, factor)
 package that provides a handful of helper functions: `mix`, `prefix`, `multivalue` and `changeLight`. 
 
 

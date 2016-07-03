@@ -1,28 +1,23 @@
-import { mix } from '../tools'
+import { mix } from '..'
 
+// This is the mixin
 const square = {
     width: '50px',
     height: '50px',
 }
 
-const bordered = {
-    borderStyle: 'solid',
-    borderWidth: '3px',
-    borderColor: 'blue',
-}
-
+const condition = false
 
 export default {
     '.class1': mix(
-        square, 
-        bordered, 
+        square,
         {
             backgroundColor: 'red',
         }
     ),
 
     '.class2': mix(
-        square, 
+        square & condition,  
         {
             position: 'float',
             padding: '1px 1px 3px 10px',
