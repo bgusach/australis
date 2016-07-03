@@ -1,4 +1,4 @@
-import { mix } from '..'
+import { mix } from '../tools'
 
 // This is the mixin
 const square = {
