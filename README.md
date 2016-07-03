@@ -105,20 +105,23 @@ it has to be `export default`'ed (or `exports.default = ...` if using CommonJS)
 
 These are the conventions you have to learn:
 
-- Properties containing a dash can be defined in camelCase and they will be automatically 
-  transformed to dashed form. For instance `minWidth` will result in `min-width`
-
 - If an object is defined within an object, it is understood as nesting and results in 
   merging the selectors or the at-rules if possible (only at-rules `@media`, `@document` or `@supports` are 
   merged). The merging always has an "and" meaning. Therefore if `.class2` is nested within `.class1`, the
   selector for the declaration block defined within `.class2` will be `.class1 .class2`. Same goes for at-rules
   although these will be bubbled up and show up before the normal selectors.
 
+- Properties containing a dash can be defined in camelCase and they will be automatically 
+  transformed to dashed form. For instance `minWidth` will result in `min-width`
+
+- If a property contains a comment in the form `/* comment */`, the comment itself will be not be in the
+  output
+
 Then, to generate the style sheet, just call `sierra path/to/style.css.js`, optionally
 passing an output path as well.
 
 While the previously explained is the core of `sierra` and it is enough to get the ball rolling, 
-there are a few tools defined in the module that will help you with typical CSS tasks. Those
+there are a few tools defined in the `tools` module that will help you with typical CSS tasks. Those
 are described in the API section
 
 ## Install
@@ -131,24 +134,31 @@ npm install sierra --save-dev
 
 ## API
 
-### generateCSS(style)
+### sierra.generateCSS(style)
 
-This function receives a `sierra` style object and returns the generated CSS string.
+This function is the core of the package. It receives a `sierra` style object and returns the generated 
+CSS string. The CLI API is just a wrapper around this.
+
+The result will be sorted in the following order:
+- `@charset` at-rules
+- `@include` at-rules
+- Rest of at-rules sorted alphabetically
+- Rest sorted alphabetically
 
 If this package is to be used on the browser, this method must be called and its return value
 appended to a style tag (a bundling engine like `browserify` or `webpack` is needed to bring this 
 to the browser)
 
 
-### mix(...objects)
+### tools.mix(...objects)
 
-Function to perform mixins. Receives any number of objects, and returns a shallow merge of all of them
-Falsy values can be passed, so that it is easy to conditionally include.
+Function to perform mixins. Receives any number of objects, and returns a shallow merge of all of them.
+If falsy values are passed, they will be ignored, so that it is easy to conditionally include mixins.
 
 Usage example:
 
 ```javascript
-import { mix } from 'sierra'
+import { mix } from 'sierra/tools'
 
 // This is the mixin
 const square = {
@@ -191,8 +201,98 @@ Output:
 }
 ```
 
-### changeLight(col, factor)
-package that provides a handful of helper functions: `mix`, `prefix`, `multivalue` and `changeLight`. 
+### tools.changeLight(col, factor)
+
+Given `col` as a hex string (e.g. `#aabbcc` or `#abc`), and `factor` as number, each channel
+of the color is multiplied by the factor, and the result is returned as a hex string.
+
+If any channel goes out of the `0-ff` range, it will be capped to `0` or `ff`.
+
+Example:
+
+```javascript
+import { changeLight } from '../tools'
+
+const color = '#aabbcc'
+
+export default {
+    '.bright': {
+        backgroundColor: changeLight(color, 1.5)
+    },
+
+    '.dark': {
+        backgroundColor: changeLight(color, 0.5)
+    },
+}
+```
+
+Result:
+
+```css
+.bright {
+  background-color: #ffffff;
+}
+
+.dark {
+  background-color: #555e66;
+}
+```
+
+
+### tools.prefix(prop, value, prefixes = ['webkit', 'moz', 'ms', 'o'])
+
+Given a property `prop`, a value `value` and optionally an array of prefixes,
+a new object will be returned, having the original property and all its prefixed variants as keys,
+and `value` for each value (it can be used with at-rules as well, like `key-frames`)
+
+Example:
+
+```javascript
+import { prefix } from 'sierra/tools'
+
+export default {
+    '.animated': prefix('animation', 'slide')
+}
+```
+
+Result:
+
+```css
+.animated {
+  -moz-animation: slide;
+  -ms-animation: slide;
+  -o-animation: slide;
+  -webkit-animation: slide;
+  animation: slide;
+}
+```
+
+
+### tools.multivalue(prop, values)
+Given a property and an array of values, it returns an object
+that will be rendered as if the property was defined for each value.
+
+Example:
+
+```javascript
+import { multivalue } from 'sierra/tools'
+
+export default {
+    '.my-flex-box': multivalue('display', ['-ms-flexbox', '-webkit-flex', 'flex']),
+}
+```
+
+Result:
+
+```css
+.my-flex-box {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+```
+
+Note: this takes profit of the `/* comment */` stripping.
 
 
 [absurdjs]: https://github.com/krasimir/absurd
