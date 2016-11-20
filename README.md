@@ -3,30 +3,24 @@
 [![npm](https://img.shields.io/npm/v/australis.svg?maxAge=2592000)]()
 [![SemVer](http://img.shields.io/:semver-2.0.0-brightgreen.svg)]()
 
-## What?
-`australis` is a tool to generate CSS from plain JavaScript. It does not have any
-superpowers or overcomplex API: it does only one thing, and does it well.
+## What is this?
+`australis` is a small and simple tool to generate CSS from plain JavaScript. 
+No superpowers, it does only one thing, and does it well.
 
-It is important to mention that this tool does not check the validity of the result.
-Inconsistent inputs will produce inconsistent outputs. If some extra validation is needed,
-it is recommended add a tool like [csslint][csslint] to the chain.
+The output is not validated, but this can easily be achieved by piping its results to a tool like [csslint][csslint].
 
-## Why?
-Writing raw CSS can easily get quite tedious a task, and that is the reason for the
-rise of the CSS preprocessors like [less][less], [sass][sass], [stylus][stylus], etc. However, 
-those entail learning yet another new language and commiting to memory details about how to declare
-variables or functions, scopes, etc.  But why not using JavaScript to define our style? 
-chances are you already know it if you are reading this. 
+## Why does it exist?
+Because:
 
-There are already out there some solutions that use JavaScript 
-for this purpose, mainly [absurdjs][absurdjs] and [restyle][restyle], but they don't target the 
-same goals as this project. `absurdjs` is powerful, too powerful in that it does way too many things
-which turns out in a complex API. `restyle` is quite simple, but its API is not so clear, especially
-when it comes to add vendor prefixes, and it misses very useful features like selector nesting.
-
-`australis` aims first of all for simplicity, but does not want to miss out on the useful stuff that 
-actually justifies the usage of an extra tool instead of writing raw CSS.
-
+- Writing CSS by hand is quite tedious a task (no variables, no functions, 
+  no selector nesting, etc)
+- CSS preprocessors like [less][less], [sass][sass], [stylus][stylus], etc are quite powerful
+  but they come with the burden of learning yet another language
+- IMHO the current CSS generators based on JavaScript do not fit the sweet spot between 
+  simplicity and power. For instance, [absurdjs][absurdjs] suffers from feature creep by doing
+  way too many things than just CSS generation, resulting in an overcomplex API, and 
+  [restyle][restyle] misses one of the very features that justify using a CSS generator - the ability
+  to nest selectors, moreover although quite minimalist, it could have an easier and more elegant API
 
 ## Example
 
@@ -95,12 +89,12 @@ And the generated style sheet will look like this:
 }
 ```
 
-## How?
+## How to use it?
 
 As seen in the example, the style has to be defined in a plain JavaScript object, and then
 it has to be `export default`'ed (or `exports.default = ...` if using CommonJS)
 
-These are the conventions you have to learn:
+These are the rules to be learnt:
 
 - If an object is defined within an object, it is understood as nesting and results in 
   merging the selectors or the at-rules if possible (only at-rules `@media`, `@document` or `@supports` are 
@@ -121,7 +115,7 @@ While the previously explained is the core of `australis` and it is enough to ge
 there are a few tools defined in the `tools` module that will help you with typical CSS tasks. Those
 are described in the API section
 
-## Install
+## How to install it?
 
 This package is on `npm` so just:
 
