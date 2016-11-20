@@ -21,6 +21,8 @@ export function generateSheet(style) {
  */
 function render(style, padding = '') {
     let res = ''
+    let chunks = []
+
     const keys = Object.keys(style).sort(compareRules)
 
     for (let key of keys) {
@@ -28,18 +30,25 @@ function render(style, padding = '') {
         key = stripComments(key)
 
         if (isObject(value)) {
-            res += padding + key + ' {\n'
-            res += render(value, padding + '  ')
-            res += padding + '}\n\n'
+            chunks.push([
+                padding + key + ' {',
+                render(value, padding + '  '),
+                padding + '}',
+            ].join('\n'))
             continue
         }
 
         let joinChar = isAtRule(key) ? '' : ':'
 
-        res += padding + dasherize(key) + joinChar + ' ' + value + ';\n'
+        chunks.push(padding + dasherize(key) + joinChar + ' ' + value + ';')
     }
 
-    return res
+    // If top level
+    if (padding === '') {
+        return chunks.join('\n\n') + '\n'
+    }
+
+    return chunks.join('\n')
 }
 
 /**
@@ -220,14 +229,20 @@ function parseAtRule(ruleStr) {
  * Given an arbitrarily nested object, it identifies the objects in the tree and 
  * returns them plus the path where it was found.
  */
-function flattenNestedObject(obj, path = [], carrier = []) {
+function flattenNestedObject(obj, path = []) {
     const plainDec = {}
+    const pairs = []
 
     for (let key of Object.keys(obj)) {
         let val = obj[key]
 
         if (isObject(val)) {
-            flattenNestedObject(val, path.concat(key), carrier)
+            const subElements = flattenNestedObject(val, path.concat(key))
+            
+            // TODO; find list.extend equivalent
+            for (let x of subElements) {
+                pairs.push(x)
+            }
             continue
         }
 
@@ -235,10 +250,10 @@ function flattenNestedObject(obj, path = [], carrier = []) {
     }
 
     if (!isEmpty(plainDec)) {
-        carrier.push([path, plainDec])
+        pairs.push([path, plainDec])
     }
 
-    return carrier
+    return pairs
 }
 
 
