@@ -238,11 +238,7 @@ function flattenNestedObject(obj, path = []) {
 
         if (isObject(val)) {
             const subElements = flattenNestedObject(val, path.concat(key))
-            
-            // TODO; find list.extend equivalent
-            for (let x of subElements) {
-                pairs.push(x)
-            }
+            pairs.push(...subElements)
             continue
         }
 
