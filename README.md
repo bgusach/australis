@@ -7,7 +7,8 @@
 `australis` is a small and simple tool to generate CSS from plain JavaScript. 
 No superpowers, it does only one thing, and does it well.
 
-The output is not validated, but this can easily be achieved by piping its results to a tool like [csslint][csslint].
+In this simplicity spirit, the output is not even validated. But this can easily be achieved 
+by piping its results to a tool like [csslint][csslint].
 
 ## Why does it exist?
 Because:
@@ -16,11 +17,12 @@ Because:
   no selector nesting, etc)
 - CSS preprocessors like [less][less], [sass][sass], [stylus][stylus], etc are quite powerful
   but they come with the burden of learning yet another language
-- IMHO the current CSS generators based on JavaScript do not fit the sweet spot between 
+- Chances are that anybody working on web frontend development can get by in JavaScript.
+- The current CSS generators based on JavaScript do not fit IMHO the sweet spot between 
   simplicity and power. For instance, [absurdjs][absurdjs] suffers from feature creep by doing
   way too many things than just CSS generation, resulting in an overcomplex API, and 
   [restyle][restyle] misses one of the very features that justify using a CSS generator - the ability
-  to nest selectors, moreover although quite minimalist, it could have an easier and more elegant API
+  to nest selectors, and although quite minimalist, it could have an easier and more elegant API
 
 ## Example
 
@@ -89,6 +91,15 @@ And the generated style sheet will look like this:
 }
 ```
 
+## How to get it?
+
+This package is on `npm` so just:
+
+```
+npm install australis --save-dev
+```
+
+
 ## How to use it?
 
 As seen in the example, the style has to be defined in a plain JavaScript object, and then
@@ -115,13 +126,6 @@ While the previously explained is the core of `australis` and it is enough to ge
 there are a few tools defined in the `tools` module that will help you with typical CSS tasks. Those
 are described in the API section
 
-## How to install it?
-
-This package is on `npm` so just:
-
-```
-npm install australis --save-dev
-```
 
 ## API
 
