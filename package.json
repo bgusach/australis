@@ -1,6 +1,6 @@
 {
   "name": "australis",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Minimalist JavaScript to CSS compiler",
   "main": "./index.js",
   "bin": {
