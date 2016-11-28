@@ -126,6 +126,7 @@ While the previously explained is the core of `australis` and it is enough to ge
 there are a few tools defined in the `tools` module that will help you with typical CSS tasks. Those
 are described in the API section
 
+For any problem or suggestions, please do not hesitate to open an issue on github.
 
 ## API
 

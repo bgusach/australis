@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 'use strict'
 
-import { isObject } from '../helpers'
-
-
+const isObject = require('../helpers').isObject
 const docopt = require('docopt').docopt
 const fs = require('fs')
 const generateSheet = require('..').generateSheet
